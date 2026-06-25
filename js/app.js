@@ -22,9 +22,15 @@ const SPORT_ORDER = ["boxing", "mma", "kickboxing", "muay thai"];
 const RUN_TOLERANCE_MIN = 5;
 const RUN_PICKS_SHOWN = 3;
 const WATCHED_STORAGE_KEY = "bestFightsWatched";
+const MOBILE_LAYOUT_MQ = window.matchMedia("(max-width: 900px)");
 
 const elements = {
   authBar: document.getElementById("auth-bar"),
+  sidebar: document.getElementById("sidebar"),
+  mobileRunToggle: document.getElementById("mobile-run-toggle"),
+  mobileRunLabel: document.getElementById("mobile-run-label"),
+  mobileFiltersToggle: document.getElementById("mobile-filters-toggle"),
+  mobileFilterBadge: document.getElementById("mobile-filter-badge"),
   grid: document.getElementById("fight-grid"),
   stats: document.getElementById("stats"),
   resultsCount: document.getElementById("results-count"),
@@ -53,6 +59,83 @@ let runRefreshSeed = 0;
 let currentRunRec = null;
 let watchedIds = new Set();
 let statFilter = { watched: "all" };
+
+function isMobileLayout() {
+  return MOBILE_LAYOUT_MQ.matches;
+}
+
+function setMobilePanel(panel) {
+  if (!elements.sidebar) return;
+
+  if (!isMobileLayout()) {
+    elements.sidebar.classList.remove("is-run-open", "is-filters-open");
+    return;
+  }
+
+  const runOpen = panel === "run";
+  const filtersOpen = panel === "filters";
+
+  elements.sidebar.classList.toggle("is-run-open", runOpen);
+  elements.sidebar.classList.toggle("is-filters-open", filtersOpen);
+
+  elements.mobileRunToggle?.setAttribute("aria-expanded", String(runOpen));
+  elements.mobileFiltersToggle?.setAttribute("aria-expanded", String(filtersOpen));
+  elements.mobileRunToggle?.classList.toggle("is-open", runOpen);
+  elements.mobileFiltersToggle?.classList.toggle("is-open", filtersOpen);
+
+  if (runOpen) {
+    document.getElementById("run-time-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } else if (filtersOpen) {
+    document.getElementById("filters-drawer")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+function toggleMobileRunPanel() {
+  if (!isMobileLayout()) return;
+  const willOpen = !elements.sidebar?.classList.contains("is-run-open");
+  setMobilePanel(willOpen ? "run" : null);
+}
+
+function toggleMobileFiltersPanel() {
+  if (!isMobileLayout()) return;
+  const willOpen = !elements.sidebar?.classList.contains("is-filters-open");
+  setMobilePanel(willOpen ? "filters" : null);
+}
+
+function countActiveFilters() {
+  let count = 0;
+  if (elements.search.value.trim()) count += 1;
+  if (elements.sport.value !== "all") count += 1;
+  if (elements.duration.value !== "all") count += 1;
+  if (elements.ending.value !== "all") count += 1;
+  if (elements.sort.value !== "year-desc") count += 1;
+  if (statFilter.watched === "watched" || statFilter.watched === "unwatched") count += 1;
+  return count;
+}
+
+function updateMobileToolbar() {
+  if (!elements.mobileRunToggle) return;
+
+  const activeFilters = countActiveFilters();
+  const runLabel = activeRunMinutes != null ? `${activeRunMinutes} min run` : "Run time";
+
+  if (elements.mobileRunLabel) {
+    elements.mobileRunLabel.textContent = runLabel;
+  }
+
+  elements.mobileRunToggle.classList.toggle("has-active-run", activeRunMinutes != null);
+
+  if (elements.mobileFilterBadge) {
+    elements.mobileFilterBadge.classList.toggle("hidden", activeFilters === 0);
+    elements.mobileFilterBadge.textContent = activeFilters > 9 ? "9+" : String(activeFilters);
+    elements.mobileFilterBadge.setAttribute(
+      "aria-label",
+      activeFilters === 0 ? "No active filters" : `${activeFilters} active filters`
+    );
+  }
+
+  elements.mobileFiltersToggle?.classList.toggle("is-active", activeFilters > 0);
+}
 
 function loadLocalWatchedIds() {
   try {
@@ -182,7 +265,8 @@ function renderAuthBar() {
         <span class="auth-name">${escapeHtml(label)}</span>
         <button type="button" class="btn-auth btn-sign-out touch-target" id="sign-out">Sign out</button>
       </div>
-      <p class="auth-hint">Watched list saved to your account.</p>
+      <p class="auth-hint auth-hint--desktop">Watched list saved to your account.</p>
+      <p class="auth-hint auth-hint--mobile">Synced to your account.</p>
     `;
 
     document.getElementById("sign-out")?.addEventListener("click", async () => {
@@ -197,11 +281,13 @@ function renderAuthBar() {
   }
 
   elements.authBar.innerHTML = `
-    <button type="button" class="btn-auth btn-google touch-target" id="sign-in-google">
+    <button type="button" class="btn-auth btn-google touch-target" id="sign-in-google" aria-label="Sign in with Google">
       <span class="btn-google-icon" aria-hidden="true">G</span>
-      Sign in with Google
+      <span class="btn-google-label btn-google-label--long">Sign in with Google</span>
+      <span class="btn-google-label btn-google-label--short">Sign in</span>
     </button>
-    <p class="auth-hint">Sign in to remember watched fights across devices.</p>
+    <p class="auth-hint auth-hint--desktop">Sign in to remember watched fights across devices.</p>
+    <p class="auth-hint auth-hint--mobile">Sync watched fights across devices.</p>
   `;
 
   document.getElementById("sign-in-google")?.addEventListener("click", async () => {
@@ -741,6 +827,7 @@ function escapeHtml(text) {
 function render() {
   renderRunRecommendations();
   renderStats();
+  updateMobileToolbar();
   const runMode = activeRunMinutes != null;
 
   if (runMode) {
@@ -780,7 +867,16 @@ function applyRunTime(minutes) {
   elements.runTime.value = String(activeRunMinutes);
   elements.duration.value = "all";
   updatePresetButtons();
+
+  if (isMobileLayout()) {
+    setMobilePanel(null);
+  }
+
   render();
+
+  if (isMobileLayout() && !elements.runRecommendations.classList.contains("hidden")) {
+    elements.runRecommendations.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 function refreshRunPicks() {
@@ -814,6 +910,17 @@ elements.duration.addEventListener("change", render);
 elements.ending.addEventListener("change", render);
 elements.sort.addEventListener("change", render);
 elements.reset.addEventListener("click", resetFilters);
+
+elements.mobileRunToggle?.addEventListener("click", toggleMobileRunPanel);
+elements.mobileFiltersToggle?.addEventListener("click", toggleMobileFiltersPanel);
+
+MOBILE_LAYOUT_MQ.addEventListener("change", () => {
+  if (!isMobileLayout()) {
+    setMobilePanel(null);
+  }
+  updateMobileToolbar();
+  render();
+});
 
 elements.runFind.addEventListener("click", () => {
   applyRunTime(Number(elements.runTime.value));

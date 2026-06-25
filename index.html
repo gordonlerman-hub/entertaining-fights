@@ -28,9 +28,33 @@
     </div>
   </header>
 
+  <div class="mobile-toolbar" id="mobile-toolbar" aria-label="Quick actions">
+    <button
+      type="button"
+      class="mobile-tool-btn touch-target"
+      id="mobile-run-toggle"
+      aria-expanded="false"
+      aria-controls="run-time-panel"
+    >
+      <span class="mobile-tool-icon" aria-hidden="true">⏱</span>
+      <span class="mobile-tool-label" id="mobile-run-label">Run time</span>
+    </button>
+    <button
+      type="button"
+      class="mobile-tool-btn touch-target"
+      id="mobile-filters-toggle"
+      aria-expanded="false"
+      aria-controls="filters-drawer"
+    >
+      <span class="mobile-tool-icon" aria-hidden="true">☰</span>
+      <span class="mobile-tool-label">Filters</span>
+      <span class="mobile-tool-badge hidden" id="mobile-filter-badge" aria-label="Active filters"></span>
+    </button>
+  </div>
+
   <main class="main">
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-card run-time-panel">
+      <div class="sidebar-card run-time-panel" id="run-time-panel">
         <label for="run-time">Run time</label>
         <p class="run-time-hint">How long is your treadmill session?</p>
         <div class="run-time-presets" role="group" aria-label="Run time presets">
@@ -48,16 +72,17 @@
         </div>
       </div>
 
-      <div class="sidebar-card watched-filter-group">
-        <label class="watched-filter-label touch-target">
-          <input type="checkbox" id="hide-watched">
-          Hide watched fights
-        </label>
-        <p class="watched-progress" id="watched-progress"></p>
-        <button type="button" class="btn-reset-watched touch-target" id="reset-watched">Clear watched list</button>
-      </div>
+      <div class="filters-drawer" id="filters-drawer">
+        <div class="sidebar-card watched-filter-group">
+          <label class="watched-filter-label touch-target">
+            <input type="checkbox" id="hide-watched">
+            Hide watched fights
+          </label>
+          <p class="watched-progress" id="watched-progress"></p>
+          <button type="button" class="btn-reset-watched touch-target" id="reset-watched">Clear watched list</button>
+        </div>
 
-      <div class="sidebar-card filters-panel">
+        <div class="sidebar-card filters-panel">
         <div class="filter-group">
           <label for="search">Search</label>
           <input type="search" id="search" class="touch-input" placeholder="Fighter, event…" autocomplete="off">
@@ -107,6 +132,7 @@
         </div>
 
         <button type="button" class="btn-reset touch-target" id="reset">Clear filters</button>
+        </div>
       </div>
     </aside>
 
