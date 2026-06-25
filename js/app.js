@@ -1,3 +1,15 @@
+import {
+  getCurrentUser,
+  getSupabase,
+  getUserAvatar,
+  getUserLabel,
+  initAuth,
+  isSignedIn,
+  onAuthChange,
+  signInWithGoogle,
+  signOut,
+} from "./auth.js";
+
 const SPORT_LABELS = {
   boxing: "Boxing",
   mma: "MMA",
@@ -12,6 +24,7 @@ const RUN_PICKS_SHOWN = 3;
 const WATCHED_STORAGE_KEY = "bestFightsWatched";
 
 const elements = {
+  authBar: document.getElementById("auth-bar"),
   grid: document.getElementById("fight-grid"),
   stats: document.getElementById("stats"),
   resultsCount: document.getElementById("results-count"),
@@ -38,10 +51,10 @@ let activeRunMinutes = null;
 let runPickIds = new Set();
 let runRefreshSeed = 0;
 let currentRunRec = null;
-let watchedIds = loadWatchedIds();
+let watchedIds = new Set();
 let statFilter = { watched: "all" };
 
-function loadWatchedIds() {
+function loadLocalWatchedIds() {
   try {
     const raw = localStorage.getItem(WATCHED_STORAGE_KEY);
     if (!raw) return new Set();
@@ -52,26 +65,152 @@ function loadWatchedIds() {
   }
 }
 
-function saveWatchedIds() {
+function saveLocalWatchedIds() {
   localStorage.setItem(WATCHED_STORAGE_KEY, JSON.stringify([...watchedIds]));
+}
+
+function clearLocalWatchedIds() {
+  localStorage.removeItem(WATCHED_STORAGE_KEY);
+}
+
+async function fetchRemoteWatchedIds() {
+  const supabase = getSupabase();
+  const user = getCurrentUser();
+  if (!supabase || !user) return new Set();
+
+  const { data, error } = await supabase.from("watched_fights").select("fight_id");
+  if (error) throw error;
+  return new Set((data || []).map((row) => row.fight_id));
+}
+
+async function mergeLocalWatchedIntoRemote() {
+  const supabase = getSupabase();
+  const user = getCurrentUser();
+  if (!supabase || !user) return;
+
+  const localIds = loadLocalWatchedIds();
+  if (localIds.size === 0) return;
+
+  const rows = [...localIds].map((fightId) => ({
+    user_id: user.id,
+    fight_id: fightId,
+  }));
+
+  const { error } = await supabase.from("watched_fights").upsert(rows, {
+    onConflict: "user_id,fight_id",
+    ignoreDuplicates: true,
+  });
+  if (error) throw error;
+  clearLocalWatchedIds();
+}
+
+async function loadWatchedIds() {
+  if (isSignedIn()) {
+    await mergeLocalWatchedIntoRemote();
+    watchedIds = await fetchRemoteWatchedIds();
+    return;
+  }
+  watchedIds = loadLocalWatchedIds();
 }
 
 function isWatched(fightId) {
   return watchedIds.has(fightId);
 }
 
-function toggleWatched(fightId) {
-  if (watchedIds.has(fightId)) {
+async function toggleWatched(fightId) {
+  const wasWatched = watchedIds.has(fightId);
+
+  if (isSignedIn()) {
+    const supabase = getSupabase();
+    const user = getCurrentUser();
+    if (!supabase || !user) return;
+
+    if (wasWatched) {
+      const { error } = await supabase
+        .from("watched_fights")
+        .delete()
+        .eq("fight_id", fightId);
+      if (error) throw error;
+      watchedIds.delete(fightId);
+    } else {
+      const { error } = await supabase.from("watched_fights").insert({
+        user_id: user.id,
+        fight_id: fightId,
+      });
+      if (error) throw error;
+      watchedIds.add(fightId);
+    }
+    return;
+  }
+
+  if (wasWatched) {
     watchedIds.delete(fightId);
   } else {
     watchedIds.add(fightId);
   }
-  saveWatchedIds();
+  saveLocalWatchedIds();
 }
 
-function clearAllWatched() {
+async function clearAllWatched() {
+  if (isSignedIn()) {
+    const supabase = getSupabase();
+    const user = getCurrentUser();
+    if (!supabase || !user) return;
+
+    const { error } = await supabase.from("watched_fights").delete().eq("user_id", user.id);
+    if (error) throw error;
+  }
+
   watchedIds = new Set();
-  saveWatchedIds();
+  clearLocalWatchedIds();
+}
+
+function renderAuthBar() {
+  if (!elements.authBar) return;
+
+  if (isSignedIn()) {
+    const user = getCurrentUser();
+    const label = getUserLabel(user);
+    const avatar = getUserAvatar(user);
+    const avatarMarkup = avatar
+      ? `<img class="auth-avatar" src="${escapeHtml(avatar)}" alt="" width="28" height="28">`
+      : `<span class="auth-avatar auth-avatar-fallback" aria-hidden="true">${escapeHtml(label.charAt(0).toUpperCase())}</span>`;
+
+    elements.authBar.innerHTML = `
+      <div class="auth-signed-in">
+        ${avatarMarkup}
+        <span class="auth-name">${escapeHtml(label)}</span>
+        <button type="button" class="btn-auth btn-sign-out touch-target" id="sign-out">Sign out</button>
+      </div>
+      <p class="auth-hint">Watched list saved to your account.</p>
+    `;
+
+    document.getElementById("sign-out")?.addEventListener("click", async () => {
+      try {
+        saveLocalWatchedIds();
+        await signOut();
+      } catch (err) {
+        window.alert(`Could not sign out: ${err.message}`);
+      }
+    });
+    return;
+  }
+
+  elements.authBar.innerHTML = `
+    <button type="button" class="btn-auth btn-google touch-target" id="sign-in-google">
+      <span class="btn-google-icon" aria-hidden="true">G</span>
+      Sign in with Google
+    </button>
+    <p class="auth-hint">Sign in to remember watched fights across devices.</p>
+  `;
+
+  document.getElementById("sign-in-google")?.addEventListener("click", async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      window.alert(`Could not start Google sign-in: ${err.message}`);
+    }
+  });
 }
 
 function renderWatchedToggle(fightId) {
@@ -696,10 +835,15 @@ elements.runPresets.forEach((btn) => {
 });
 
 document.addEventListener("change", (e) => {
-  if (e.target.classList.contains("watched-toggle")) {
-    toggleWatched(e.target.dataset.fightId);
-    render();
-  }
+  if (!e.target.classList.contains("watched-toggle")) return;
+
+  const fightId = e.target.dataset.fightId;
+  toggleWatched(fightId)
+    .then(() => render())
+    .catch((err) => {
+      e.target.checked = !e.target.checked;
+      window.alert(`Could not update watched status: ${err.message}`);
+    });
 });
 
 elements.hideWatched?.addEventListener("change", () => {
@@ -715,12 +859,32 @@ elements.stats.addEventListener("click", (e) => {
 
 elements.resetWatched?.addEventListener("click", () => {
   if (watchedIds.size === 0) return;
-  if (window.confirm(`Clear all ${watchedIds.size} watched fights?`)) {
-    clearAllWatched();
-    render();
-  }
+  if (!window.confirm(`Clear all ${watchedIds.size} watched fights?`)) return;
+
+  clearAllWatched()
+    .then(() => render())
+    .catch((err) => window.alert(`Could not clear watched list: ${err.message}`));
 });
 
-loadFights().catch((err) => {
-  elements.grid.innerHTML = `<p class="empty-state">Failed to load fights: ${escapeHtml(err.message)}</p>`;
-});
+async function bootstrap() {
+  try {
+    await initAuth();
+    renderAuthBar();
+    onAuthChange(async () => {
+      renderAuthBar();
+      try {
+        await loadWatchedIds();
+      } catch (err) {
+        console.error(err);
+      }
+      render();
+    });
+
+    await loadWatchedIds();
+    await loadFights();
+  } catch (err) {
+    elements.grid.innerHTML = `<p class="empty-state">Failed to load: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+bootstrap();

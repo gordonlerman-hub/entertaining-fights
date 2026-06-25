@@ -81,6 +81,103 @@ body {
   gap: 0.75rem 1rem;
 }
 
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.65rem;
+  min-width: min(100%, 20rem);
+}
+
+.auth-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.auth-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.auth-signed-in {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.auth-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.auth-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-hover);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.auth-name {
+  font-size: 0.9rem;
+  color: var(--text);
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-auth {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-auth:hover {
+  background: var(--surface-hover);
+  border-color: #3d4a5c;
+}
+
+.btn-google {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 500;
+}
+
+.btn-google-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: #fff;
+  color: #4285f4;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.btn-sign-out {
+  font-size: 0.82rem;
+  padding: 0.35rem 0.75rem;
+}
+
 .brand h1 {
   margin: 0;
   font-family: var(--font-display);
@@ -858,6 +955,22 @@ select:focus {
     padding: 0.85rem 1rem;
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .header-actions {
+    align-items: stretch;
+    min-width: 0;
+  }
+
+  .auth-bar,
+  .auth-hint,
+  .auth-signed-in {
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .auth-hint {
+    text-align: left;
   }
 
   .stats-scroll {
