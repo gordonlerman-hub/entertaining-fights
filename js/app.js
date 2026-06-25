@@ -29,6 +29,7 @@ const elements = {
   sidebar: document.getElementById("sidebar"),
   mobileRunToggle: document.getElementById("mobile-run-toggle"),
   mobileRunLabel: document.getElementById("mobile-run-label"),
+  mobileClearRun: document.getElementById("mobile-clear-run"),
   mobileFiltersToggle: document.getElementById("mobile-filters-toggle"),
   mobileFilterBadge: document.getElementById("mobile-filter-badge"),
   grid: document.getElementById("fight-grid"),
@@ -124,6 +125,7 @@ function updateMobileToolbar() {
   }
 
   elements.mobileRunToggle.classList.toggle("has-active-run", activeRunMinutes != null);
+  elements.mobileClearRun?.classList.toggle("hidden", activeRunMinutes == null);
 
   if (elements.mobileFilterBadge) {
     elements.mobileFilterBadge.classList.toggle("hidden", activeFilters === 0);
@@ -769,7 +771,10 @@ function renderRunRecommendations() {
           }
         </p>
       </div>
-      <button type="button" class="btn-run-refresh" id="run-refresh-inline" title="Show different fight picks">New picks ↻</button>
+      <div class="run-rec-actions">
+        <button type="button" class="btn-clear-run" id="run-clear-inline">Clear run</button>
+        <button type="button" class="btn-run-refresh" id="run-refresh-inline" title="Show different fight picks">New picks ↻</button>
+      </div>
     </div>
     <div class="run-rec-section">
       <div class="run-rec-list">${pickItems || `<p class="run-rec-sub">No fights match your run time and filters.</p>`}</div>
@@ -777,6 +782,7 @@ function renderRunRecommendations() {
   `;
 
   document.getElementById("run-refresh-inline")?.addEventListener("click", refreshRunPicks);
+  document.getElementById("run-clear-inline")?.addEventListener("click", clearRunTime);
   elements.runRecommendations.classList.remove("hidden");
 }
 
@@ -890,6 +896,9 @@ function clearRunTime() {
   runRefreshSeed = 0;
   elements.runTime.value = "";
   updatePresetButtons();
+  if (isMobileLayout()) {
+    setMobilePanel(null);
+  }
   render();
 }
 
@@ -912,6 +921,7 @@ elements.sort.addEventListener("change", render);
 elements.reset.addEventListener("click", resetFilters);
 
 elements.mobileRunToggle?.addEventListener("click", toggleMobileRunPanel);
+elements.mobileClearRun?.addEventListener("click", clearRunTime);
 elements.mobileFiltersToggle?.addEventListener("click", toggleMobileFiltersPanel);
 
 MOBILE_LAYOUT_MQ.addEventListener("change", () => {

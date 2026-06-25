@@ -29,16 +29,27 @@
   </header>
 
   <div class="mobile-toolbar" id="mobile-toolbar" aria-label="Quick actions">
-    <button
-      type="button"
-      class="mobile-tool-btn touch-target"
-      id="mobile-run-toggle"
-      aria-expanded="false"
-      aria-controls="run-time-panel"
-    >
-      <span class="mobile-tool-icon" aria-hidden="true">⏱</span>
-      <span class="mobile-tool-label" id="mobile-run-label">Run time</span>
-    </button>
+    <div class="mobile-run-group">
+      <button
+        type="button"
+        class="mobile-tool-btn touch-target"
+        id="mobile-run-toggle"
+        aria-expanded="false"
+        aria-controls="run-time-panel"
+      >
+        <span class="mobile-tool-icon" aria-hidden="true">⏱</span>
+        <span class="mobile-tool-label" id="mobile-run-label">Run time</span>
+      </button>
+      <button
+        type="button"
+        class="mobile-clear-run touch-target hidden"
+        id="mobile-clear-run"
+        aria-label="Clear run time"
+        title="Clear run time"
+      >
+        ✕
+      </button>
+    </div>
     <button
       type="button"
       class="mobile-tool-btn touch-target"

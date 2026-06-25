@@ -493,6 +493,21 @@ input[type="number"]:focus {
   padding: 0.55rem 0.85rem;
 }
 
+.run-rec-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.run-rec-actions .btn-clear-run,
+.run-rec-actions .btn-run-refresh {
+  flex: 1 1 auto;
+  min-width: 7rem;
+  width: auto;
+  margin-top: 0;
+}
+
 .run-rec-stack-fights {
   display: flex;
   flex-direction: column;
@@ -999,6 +1014,41 @@ select:focus {
     -webkit-backdrop-filter: blur(12px);
   }
 
+  .mobile-run-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .mobile-run-group .mobile-tool-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-clear-run {
+    flex: 0 0 var(--touch-min);
+    width: var(--touch-min);
+    min-height: var(--touch-min);
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .mobile-clear-run:hover {
+    background: var(--surface-hover);
+    border-color: #3d4a5c;
+    color: var(--text);
+  }
+
   .mobile-tool-btn {
     flex: 1;
     display: inline-flex;
@@ -1243,8 +1293,14 @@ select:focus {
     align-items: stretch;
   }
 
-  .run-rec-header .btn-run-refresh {
+  .run-rec-actions {
     width: 100%;
+  }
+
+  .run-rec-actions .btn-clear-run,
+  .run-rec-actions .btn-run-refresh {
+    width: 100%;
+    min-width: 0;
   }
 
   .run-rec-item a {
