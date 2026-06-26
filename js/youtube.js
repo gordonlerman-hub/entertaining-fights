@@ -65,7 +65,7 @@ export function fightsToVideoIds(fights) {
   return { videoIds, missing };
 }
 
-async function callYouTubeFunction(body) {
+async function getAuthedSession() {
   const supabase = getSupabase();
   if (!supabase) throw new Error("Auth is not initialized");
 
@@ -75,6 +75,19 @@ async function callYouTubeFunction(body) {
   if (!session?.access_token) {
     throw new Error("Sign in to queue fights on YouTube");
   }
+  return session;
+}
+
+function getGoogleAccessToken(session) {
+  const token = session?.provider_token;
+  if (!token) {
+    throw new Error("YouTube access expired — sign out and sign in with Google again");
+  }
+  return token;
+}
+
+async function callYouTubeFunction(body) {
+  const session = await getAuthedSession();
 
   const response = await fetch(FUNCTION_URL, {
     method: "POST",
@@ -105,19 +118,23 @@ export async function fetchYouTubeStatus() {
 }
 
 export async function registerYouTube(session) {
-  const refreshToken = session?.provider_refresh_token;
-  if (!refreshToken) return fetchYouTubeStatus();
+  if (!session?.provider_token) return fetchYouTubeStatus();
 
   const data = await callYouTubeFunction({
     action: "register",
-    refreshToken,
+    googleAccessToken: getGoogleAccessToken(session),
   });
   setYouTubeReady(Boolean(data.ready));
   return data;
 }
 
 export async function syncYouTubeQueue(videoIds) {
-  const data = await callYouTubeFunction({ action: "sync", videoIds });
+  const session = await getAuthedSession();
+  const data = await callYouTubeFunction({
+    action: "sync",
+    videoIds,
+    googleAccessToken: getGoogleAccessToken(session),
+  });
   setYouTubeReady(true);
   return data;
 }

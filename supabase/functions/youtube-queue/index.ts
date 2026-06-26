@@ -17,91 +17,12 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
-function hexToBytes(hex: string): Uint8Array {
-  const normalized = hex.trim();
-  if (normalized.length % 2 !== 0) {
-    throw new Error("Invalid encryption key length");
+function requireGoogleAccessToken(body: Record<string, unknown>): string {
+  const token = body.googleAccessToken;
+  if (typeof token !== "string" || !token.trim()) {
+    throw new Error("Missing YouTube access — sign out and sign in with Google again");
   }
-  const bytes = new Uint8Array(normalized.length / 2);
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(normalized.slice(i * 2, i * 2 + 2), 16);
-  }
-  return bytes;
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary);
-}
-
-function base64ToBytes(base64: string): Uint8Array {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
-async function importAesKey(hexKey: string): Promise<CryptoKey> {
-  return crypto.subtle.importKey("raw", hexToBytes(hexKey), { name: "AES-GCM" }, false, [
-    "encrypt",
-    "decrypt",
-  ]);
-}
-
-async function encryptToken(plaintext: string, hexKey: string): Promise<string> {
-  const key = await importAesKey(hexKey);
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const cipher = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
-    key,
-    new TextEncoder().encode(plaintext)
-  );
-  return `${bytesToBase64(iv)}.${bytesToBase64(new Uint8Array(cipher))}`;
-}
-
-async function decryptToken(payload: string, hexKey: string): Promise<string> {
-  const [ivB64, cipherB64] = payload.split(".");
-  if (!ivB64 || !cipherB64) throw new Error("Invalid encrypted token format");
-  const key = await importAesKey(hexKey);
-  const plain = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: base64ToBytes(ivB64) },
-    key,
-    base64ToBytes(cipherB64)
-  );
-  return new TextDecoder().decode(plain);
-}
-
-async function refreshGoogleAccessToken(refreshToken: string): Promise<string> {
-  const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
-  const clientSecret = Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET");
-  if (!clientId || !clientSecret) {
-    throw new Error("YouTube OAuth is not configured on the server");
-  }
-
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: "refresh_token",
-    }),
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error_description || data.error || "Failed to refresh Google token");
-  }
-  if (!data.access_token) {
-    throw new Error("No access token returned from Google");
-  }
-  return data.access_token;
+  return token;
 }
 
 async function youtubeFetch(
@@ -133,6 +54,12 @@ async function createPlaylist(accessToken: string): Promise<string> {
   });
   const data = await response.json();
   if (!response.ok) {
+    const reason = data.error?.errors?.[0]?.reason;
+    if (reason === "insufficientPermissions" || response.status === 403) {
+      throw new Error(
+        "YouTube permission denied — sign out, sign in again, and allow playlist access"
+      );
+    }
     throw new Error(data.error?.message || "Failed to create YouTube playlist");
   }
   return data.id as string;
@@ -200,6 +127,34 @@ function buildOpenUrl(playlistId: string, firstVideoId: string) {
   return `https://www.youtube.com/watch?v=${firstVideoId}&list=${playlistId}`;
 }
 
+async function ensurePlaylistId(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  accessToken: string
+): Promise<string> {
+  const { data: existing } = await supabase
+    .from("user_youtube")
+    .select("playlist_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  let playlistId = existing?.playlist_id ?? null;
+  if (!playlistId) {
+    playlistId = await createPlaylist(accessToken);
+    const { error: upsertError } = await supabase.from("user_youtube").upsert(
+      {
+        user_id: userId,
+        playlist_id: playlistId,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+    if (upsertError) throw new Error(upsertError.message);
+  }
+
+  return playlistId;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -212,13 +167,9 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const encryptionKey = Deno.env.get("YOUTUBE_TOKEN_ENCRYPTION_KEY");
 
     if (!supabaseUrl || !serviceRoleKey) {
       return jsonResponse({ error: "Supabase is not configured" }, 500);
-    }
-    if (!encryptionKey) {
-      return jsonResponse({ error: "YouTube encryption is not configured" }, 500);
     }
 
     const authHeader = req.headers.get("Authorization");
@@ -254,39 +205,8 @@ Deno.serve(async (req) => {
     }
 
     if (action === "register") {
-      const refreshToken = body.refreshToken as string | undefined;
-      if (!refreshToken) {
-        return jsonResponse({ error: "Missing refresh token — sign in again with Google" }, 400);
-      }
-
-      const encrypted = await encryptToken(refreshToken, encryptionKey);
-      const accessToken = await refreshGoogleAccessToken(refreshToken);
-
-      const { data: existing } = await supabase
-        .from("user_youtube")
-        .select("playlist_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      let playlistId = existing?.playlist_id ?? null;
-      if (!playlistId) {
-        playlistId = await createPlaylist(accessToken);
-      }
-
-      const { error: upsertError } = await supabase.from("user_youtube").upsert(
-        {
-          user_id: user.id,
-          playlist_id: playlistId,
-          refresh_token_encrypted: encrypted,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
-
-      if (upsertError) {
-        throw new Error(upsertError.message);
-      }
-
+      const accessToken = requireGoogleAccessToken(body);
+      const playlistId = await ensurePlaylistId(supabase, user.id, accessToken);
       return jsonResponse({ playlistId, ready: true });
     }
 
@@ -299,31 +219,8 @@ Deno.serve(async (req) => {
         return jsonResponse({ error: `Maximum ${MAX_VIDEOS} videos per queue` }, 400);
       }
 
-      const { data: row, error: rowError } = await supabase
-        .from("user_youtube")
-        .select("playlist_id, refresh_token_encrypted")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (rowError) throw new Error(rowError.message);
-      if (!row?.refresh_token_encrypted) {
-        return jsonResponse(
-          { error: "YouTube not connected — sign out and sign in again" },
-          400
-        );
-      }
-
-      const refreshToken = await decryptToken(row.refresh_token_encrypted, encryptionKey);
-      const accessToken = await refreshGoogleAccessToken(refreshToken);
-
-      let playlistId = row.playlist_id;
-      if (!playlistId) {
-        playlistId = await createPlaylist(accessToken);
-        await supabase
-          .from("user_youtube")
-          .update({ playlist_id: playlistId, updated_at: new Date().toISOString() })
-          .eq("user_id", user.id);
-      }
+      const accessToken = requireGoogleAccessToken(body);
+      const playlistId = await ensurePlaylistId(supabase, user.id, accessToken);
 
       await clearPlaylist(accessToken, playlistId);
       await addVideosToPlaylist(accessToken, playlistId, videoIds);

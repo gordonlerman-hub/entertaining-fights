@@ -35,7 +35,7 @@ async function handleYouTubeSession(session) {
     return;
   }
 
-  if (session.provider_refresh_token) {
+  if (session.provider_token || session.provider_refresh_token) {
     if (!registerInFlight) {
       registerInFlight = registerYouTube(session)
         .catch((err) => {
