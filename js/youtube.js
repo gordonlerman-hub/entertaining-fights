@@ -65,6 +65,48 @@ export function fightsToVideoIds(fights) {
   return { videoIds, missing };
 }
 
+const YOUTUBE_TITLE_MAX = 150;
+const YOUTUBE_DESC_MAX = 5000;
+
+function abbreviateFighter(name) {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  const last = parts[parts.length - 1];
+  if (last.length <= 3 && parts.length > 1) {
+    return parts[parts.length - 2].replace(/\./g, "") || last;
+  }
+  return last;
+}
+
+function abbreviateMatchup(fight) {
+  return `${abbreviateFighter(fight.fighter1)}/${abbreviateFighter(fight.fighter2)}`;
+}
+
+export function buildRunPlaylistTitle(runMinutes, fights) {
+  const count = fights.length;
+  const prefix = `${runMinutes}min · ${count} fight${count === 1 ? "" : "s"} · `;
+  const matchups = fights.map(abbreviateMatchup).join(", ");
+  const full = prefix + matchups;
+
+  if (full.length <= YOUTUBE_TITLE_MAX) return full;
+
+  const room = YOUTUBE_TITLE_MAX - prefix.length - 1;
+  if (room < 8) return `${runMinutes}min · ${count} fight${count === 1 ? "" : "s"}`;
+  return `${prefix}${matchups.slice(0, room)}…`;
+}
+
+export function buildRunPlaylistDescription(runMinutes, fights) {
+  const lines = fights.map(
+    (fight, index) =>
+      `${index + 1}. ${fight.fighter1} vs ${fight.fighter2} (${fight.duration})`
+  );
+  const body = lines.join("\n");
+  const header = `${runMinutes}-minute Best Fights run · ${fights.length} in order\n\n`;
+  const full = header + body;
+  if (full.length <= YOUTUBE_DESC_MAX) return full;
+  return full.slice(0, YOUTUBE_DESC_MAX - 1) + "…";
+}
+
 async function getAuthedSession() {
   const supabase = getSupabase();
   if (!supabase) throw new Error("Auth is not initialized");
@@ -128,13 +170,20 @@ export async function registerYouTube(session) {
   return data;
 }
 
-export async function syncYouTubeQueue(videoIds) {
+export async function syncYouTubeQueue(videoIds, { runMinutes, fights } = {}) {
   const session = await getAuthedSession();
-  const data = await callYouTubeFunction({
+  const payload = {
     action: "sync",
     videoIds,
     googleAccessToken: getGoogleAccessToken(session),
-  });
+  };
+
+  if (runMinutes != null && Array.isArray(fights) && fights.length > 0) {
+    payload.playlistTitle = buildRunPlaylistTitle(runMinutes, fights);
+    payload.playlistDescription = buildRunPlaylistDescription(runMinutes, fights);
+  }
+
+  const data = await callYouTubeFunction(payload);
   setYouTubeReady(true);
   return data;
 }

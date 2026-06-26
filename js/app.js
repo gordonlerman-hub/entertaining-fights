@@ -708,8 +708,12 @@ function renderQueueActions(pick) {
   const signedIn = isSignedIn();
 
   if (state?.status === "success" && state.openUrl) {
+    const queuedLabel = state.playlistTitle
+      ? `Queued as “${escapeHtml(state.playlistTitle)}”`
+      : "Queued — tap to start your run";
     return `
       <a class="btn-youtube-open" href="${escapeHtml(state.openUrl)}" target="_blank" rel="noopener noreferrer">Open in YouTube ↗</a>
+      <span class="run-rec-queue-success">${queuedLabel}</span>
     `;
   }
 
@@ -811,8 +815,15 @@ async function queuePickOnYouTube(pickKey) {
   renderRunRecommendations();
 
   try {
-    const result = await syncYouTubeQueue(videoIds);
-    queueState.set(pickKey, { status: "success", openUrl: result.openUrl });
+    const result = await syncYouTubeQueue(videoIds, {
+      runMinutes: activeRunMinutes,
+      fights,
+    });
+    queueState.set(pickKey, {
+      status: "success",
+      openUrl: result.openUrl,
+      playlistTitle: result.playlistTitle,
+    });
   } catch (err) {
     queueState.set(pickKey, {
       status: "error",

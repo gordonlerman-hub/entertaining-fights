@@ -679,6 +679,13 @@ input[type="number"]:focus {
   flex: 1 1 auto;
 }
 
+.run-rec-actions-row .run-rec-queue-success {
+  flex: 1 1 100%;
+  font-size: 0.75rem;
+  color: #7dcea0;
+  line-height: 1.35;
+}
+
 .run-rec-item a:hover {
   background: var(--accent);
   color: #fff;

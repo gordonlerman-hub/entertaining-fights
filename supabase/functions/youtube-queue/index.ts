@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-const PLAYLIST_TITLE = "Best Fights Run";
+const DEFAULT_PLAYLIST_TITLE = "Best Fights Run";
 const MAX_VIDEOS = 10;
 
 const corsHeaders = {
@@ -41,13 +41,39 @@ async function youtubeFetch(
   });
 }
 
-async function createPlaylist(accessToken: string): Promise<string> {
+async function updatePlaylist(
+  accessToken: string,
+  playlistId: string,
+  title: string,
+  description: string
+) {
+  const response = await youtubeFetch(accessToken, "/playlists?part=snippet", {
+    method: "PUT",
+    body: JSON.stringify({
+      id: playlistId,
+      snippet: {
+        title: title.slice(0, 150),
+        description: description.slice(0, 5000),
+      },
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || "Failed to rename YouTube playlist");
+  }
+}
+
+async function createPlaylist(
+  accessToken: string,
+  title: string,
+  description: string
+): Promise<string> {
   const response = await youtubeFetch(accessToken, "/playlists?part=snippet,status", {
     method: "POST",
     body: JSON.stringify({
       snippet: {
-        title: PLAYLIST_TITLE,
-        description: "Fight queue from Best Fights treadmill watchlist",
+        title: title.slice(0, 150),
+        description: description.slice(0, 5000),
       },
       status: { privacyStatus: "private" },
     }),
@@ -130,7 +156,9 @@ function buildOpenUrl(playlistId: string, firstVideoId: string) {
 async function ensurePlaylistId(
   supabase: ReturnType<typeof createClient>,
   userId: string,
-  accessToken: string
+  accessToken: string,
+  title = DEFAULT_PLAYLIST_TITLE,
+  description = "Queued from Best Fights treadmill watchlist"
 ): Promise<string> {
   const { data: existing } = await supabase
     .from("user_youtube")
@@ -140,7 +168,7 @@ async function ensurePlaylistId(
 
   let playlistId = existing?.playlist_id ?? null;
   if (!playlistId) {
-    playlistId = await createPlaylist(accessToken);
+    playlistId = await createPlaylist(accessToken, title, description);
     const { error: upsertError } = await supabase.from("user_youtube").upsert(
       {
         user_id: userId,
@@ -220,8 +248,24 @@ Deno.serve(async (req) => {
       }
 
       const accessToken = requireGoogleAccessToken(body);
-      const playlistId = await ensurePlaylistId(supabase, user.id, accessToken);
+      const playlistTitle =
+        typeof body.playlistTitle === "string" && body.playlistTitle.trim()
+          ? body.playlistTitle.trim()
+          : DEFAULT_PLAYLIST_TITLE;
+      const playlistDescription =
+        typeof body.playlistDescription === "string" && body.playlistDescription.trim()
+          ? body.playlistDescription.trim()
+          : "Queued from Best Fights treadmill watchlist";
 
+      const playlistId = await ensurePlaylistId(
+        supabase,
+        user.id,
+        accessToken,
+        playlistTitle,
+        playlistDescription
+      );
+
+      await updatePlaylist(accessToken, playlistId, playlistTitle, playlistDescription);
       await clearPlaylist(accessToken, playlistId);
       await addVideosToPlaylist(accessToken, playlistId, videoIds);
 
@@ -230,6 +274,7 @@ Deno.serve(async (req) => {
         playlistId,
         firstVideoId,
         openUrl: buildOpenUrl(playlistId, firstVideoId),
+        playlistTitle,
       });
     }
 
