@@ -784,6 +784,13 @@ input[type="number"]:focus {
   flex-shrink: 0;
 }
 
+.watched-filter-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
 .watched-progress {
   margin: 0.35rem 0 0;
   font-size: 0.8rem;

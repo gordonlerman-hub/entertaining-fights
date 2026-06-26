@@ -28,6 +28,7 @@ const SPORT_ORDER = ["boxing", "mma", "kickboxing", "muay thai"];
 const RUN_TOLERANCE_MIN = 5;
 const RUN_PICKS_SHOWN = 3;
 const WATCHED_STORAGE_KEY = "bestFightsWatched";
+const PREFER_UNWATCHED_KEY = "bestFightsPreferUnwatched";
 const MOBILE_LAYOUT_MQ = window.matchMedia("(max-width: 900px)");
 
 const elements = {
@@ -65,7 +66,7 @@ let runPickIds = new Set();
 let runRefreshSeed = 0;
 let currentRunRec = null;
 let watchedIds = new Set();
-let statFilter = { watched: "all" };
+let statFilter = { watched: "unwatched" };
 /** @type {Map<string, { status: string, openUrl?: string, error?: string }>} */
 const queueState = new Map();
 
@@ -118,7 +119,7 @@ function countActiveFilters() {
   if (elements.duration.value !== "all") count += 1;
   if (elements.ending.value !== "all") count += 1;
   if (elements.sort.value !== "year-desc") count += 1;
-  if (statFilter.watched === "watched" || statFilter.watched === "unwatched") count += 1;
+  if (statFilter.watched === "watched") count += 1;
   return count;
 }
 
@@ -323,11 +324,40 @@ function renderWatchedToggle(fightId) {
   `;
 }
 
+function loadPreferUnwatched() {
+  try {
+    const raw = localStorage.getItem(PREFER_UNWATCHED_KEY);
+    if (raw === null) return true;
+    return raw === "true";
+  } catch {
+    return true;
+  }
+}
+
+function savePreferUnwatched(prefer) {
+  try {
+    localStorage.setItem(PREFER_UNWATCHED_KEY, String(prefer));
+  } catch {
+    // ignore
+  }
+}
+
+function prefersUnwatchedOnly() {
+  return statFilter.watched === "unwatched";
+}
+
+function applyUnwatchedPreference(prefer) {
+  statFilter.watched = prefer ? "unwatched" : "all";
+  savePreferUnwatched(prefer);
+  syncHideWatchedCheckbox();
+}
+
 function compareWatched(a, b) {
   return Number(isWatched(a.id)) - Number(isWatched(b.id));
 }
 
 function poolForRecommendations(basePool) {
+  if (!prefersUnwatchedOnly()) return basePool;
   const unwatched = basePool.filter((f) => !isWatched(f.id));
   return unwatched.length > 0 ? unwatched : basePool;
 }
@@ -388,11 +418,15 @@ function syncHideWatchedCheckbox() {
 function applyStatFilter(filter) {
   if (filter === "all") {
     statFilter.watched = "all";
+    savePreferUnwatched(false);
     elements.sport.value = "all";
   } else if (filter === "watched") {
     statFilter.watched = statFilter.watched === "watched" ? "all" : "watched";
+    if (statFilter.watched === "all") savePreferUnwatched(false);
   } else if (filter === "unwatched") {
-    statFilter.watched = statFilter.watched === "unwatched" ? "all" : "unwatched";
+    const next = statFilter.watched === "unwatched" ? "all" : "unwatched";
+    statFilter.watched = next;
+    savePreferUnwatched(next === "unwatched");
   } else if (SPORT_ORDER.includes(filter)) {
     if (elements.sport.value === filter) {
       elements.sport.value = "all";
@@ -849,10 +883,12 @@ function renderRunRecommendations() {
   elements.clearRun.classList.remove("hidden");
   elements.runRefresh.classList.remove("hidden");
 
-  const pool = poolForRecommendations(getBaseFilteredFights());
+  const basePool = getBaseFilteredFights();
+  const pool = poolForRecommendations(basePool);
   const allWatchedInFilter =
-    getBaseFilteredFights().length > 0 &&
-    getBaseFilteredFights().every((f) => isWatched(f.id));
+    prefersUnwatchedOnly() &&
+    basePool.length > 0 &&
+    basePool.every((f) => isWatched(f.id));
 
   currentRunRec = {
     ...getRunRecommendations(pool, activeRunMinutes, runRefreshSeed),
@@ -1029,8 +1065,7 @@ function resetFilters() {
   elements.duration.value = "all";
   elements.ending.value = "all";
   elements.sort.value = "year-desc";
-  statFilter.watched = "all";
-  syncHideWatchedCheckbox();
+  applyUnwatchedPreference(true);
   clearRunTime();
 }
 
@@ -1085,7 +1120,7 @@ document.addEventListener("change", (e) => {
 });
 
 elements.hideWatched?.addEventListener("change", () => {
-  statFilter.watched = elements.hideWatched.checked ? "unwatched" : "all";
+  applyUnwatchedPreference(elements.hideWatched.checked);
   render();
 });
 
@@ -1106,6 +1141,7 @@ elements.resetWatched?.addEventListener("click", () => {
 
 async function bootstrap() {
   try {
+    applyUnwatchedPreference(loadPreferUnwatched());
     await initAuth();
     renderAuthBar();
     onYouTubeReadyChange(() => renderAuthBar());
