@@ -9,6 +9,12 @@ import {
   signInWithGoogle,
   signOut,
 } from "./auth.js";
+import {
+  fightsToVideoIds,
+  isYouTubeReady,
+  onYouTubeReadyChange,
+  syncYouTubeQueue,
+} from "./youtube.js";
 
 const SPORT_LABELS = {
   boxing: "Boxing",
@@ -60,6 +66,8 @@ let runRefreshSeed = 0;
 let currentRunRec = null;
 let watchedIds = new Set();
 let statFilter = { watched: "all" };
+/** @type {Map<string, { status: string, openUrl?: string, error?: string }>} */
+const queueState = new Map();
 
 function isMobileLayout() {
   return MOBILE_LAYOUT_MQ.matches;
@@ -257,6 +265,9 @@ function renderAuthBar() {
     const user = getCurrentUser();
     const label = getUserLabel(user);
     const avatar = getUserAvatar(user);
+    const youtubeBadge = isYouTubeReady()
+      ? `<span class="auth-youtube-badge" title="YouTube playlist ready">YouTube ready</span>`
+      : "";
     const avatarMarkup = avatar
       ? `<img class="auth-avatar" src="${escapeHtml(avatar)}" alt="" width="28" height="28">`
       : `<span class="auth-avatar auth-avatar-fallback" aria-hidden="true">${escapeHtml(label.charAt(0).toUpperCase())}</span>`;
@@ -265,10 +276,11 @@ function renderAuthBar() {
       <div class="auth-signed-in">
         ${avatarMarkup}
         <span class="auth-name">${escapeHtml(label)}</span>
+        ${youtubeBadge}
         <button type="button" class="btn-auth btn-sign-out touch-target" id="sign-out">Sign out</button>
       </div>
-      <p class="auth-hint auth-hint--desktop">Watched list saved to your account.</p>
-      <p class="auth-hint auth-hint--mobile">Synced to your account.</p>
+      <p class="auth-hint auth-hint--desktop">Watched list synced · queue run picks to YouTube.</p>
+      <p class="auth-hint auth-hint--mobile">Sync watched · queue to YouTube.</p>
     `;
 
     document.getElementById("sign-out")?.addEventListener("click", async () => {
@@ -288,8 +300,8 @@ function renderAuthBar() {
       <span class="btn-google-label btn-google-label--long">Sign in with Google</span>
       <span class="btn-google-label btn-google-label--short">Sign in</span>
     </button>
-    <p class="auth-hint auth-hint--desktop">Sign in to remember watched fights across devices.</p>
-    <p class="auth-hint auth-hint--mobile">Sync watched fights across devices.</p>
+    <p class="auth-hint auth-hint--desktop">Sign in with Google to sync watched fights and queue runs on YouTube.</p>
+    <p class="auth-hint auth-hint--mobile">Sign in to sync watched fights and queue on YouTube.</p>
   `;
 
   document.getElementById("sign-in-google")?.addEventListener("click", async () => {
@@ -686,7 +698,50 @@ function renderStackRows(fights) {
     .join("");
 }
 
+function getFightsFromPick(pick) {
+  return pick.type === "single" ? [pick.fight] : pick.fights;
+}
+
+function renderQueueActions(pick) {
+  const pickKey = pick.key;
+  const state = queueState.get(pickKey);
+  const signedIn = isSignedIn();
+
+  if (state?.status === "success" && state.openUrl) {
+    return `
+      <a class="btn-youtube-open" href="${escapeHtml(state.openUrl)}" target="_blank" rel="noopener noreferrer">Open in YouTube ↗</a>
+    `;
+  }
+
+  if (state?.status === "loading") {
+    return `<button type="button" class="btn-youtube-queue" disabled>Queuing…</button>`;
+  }
+
+  const title = !signedIn
+    ? "Sign in to queue on YouTube"
+    : !isYouTubeReady()
+      ? "Setting up YouTube — try again in a moment"
+      : "Save these fights to your YouTube playlist in order";
+
+  let errorMarkup = "";
+  if (state?.status === "error" && state.error) {
+    errorMarkup = `<p class="run-rec-queue-error" role="alert">${escapeHtml(state.error)}</p>`;
+  }
+
+  return `
+    <button
+      type="button"
+      class="btn-youtube-queue touch-target"
+      data-queue-pick-key="${escapeHtml(pickKey)}"
+      title="${escapeHtml(title)}"
+    >Queue on YouTube</button>
+    ${errorMarkup}
+  `;
+}
+
 function renderRunPick(pick) {
+  const queueActions = renderQueueActions(pick);
+
   if (pick.type === "single") {
     const { fight, rawDiff } = pick;
     const offBy =
@@ -694,13 +749,14 @@ function renderRunPick(pick) {
         ? "matches your run"
         : `${formatMinutes(rawDiff)} ${fight.durationMinutes > activeRunMinutes ? "over" : "under"}`;
     return `
-      <div class="run-rec-item${isWatched(fight.id) ? " is-watched-rec" : ""}">
-        <div class="run-rec-item-body">
-          <div>
-            <div class="run-rec-fighters">${escapeHtml(fightLabel(fight))}</div>
-            <div class="run-rec-meta">${escapeHtml(fight.duration)} · ${escapeHtml(SPORT_LABELS[fight.sport])} · ${offBy}</div>
-          </div>
+      <div class="run-rec-item${isWatched(fight.id) ? " is-watched-rec" : ""}" data-pick-key="${escapeHtml(pick.key)}">
+        <div class="run-rec-item-main">
+          <div class="run-rec-fighters">${escapeHtml(fightLabel(fight))}</div>
+          <div class="run-rec-meta">${escapeHtml(fight.duration)} · ${escapeHtml(SPORT_LABELS[fight.sport])} · ${offBy}</div>
+        </div>
+        <div class="run-rec-actions-row">
           <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
+          ${queueActions}
         </div>
       </div>
     `;
@@ -712,14 +768,59 @@ function renderRunPick(pick) {
       ? "matches your run"
       : `${formatMinutes(rawDiff)} ${total > activeRunMinutes ? "over" : "under"}`;
   return `
-    <div class="run-rec-item">
-      <div style="flex: 1">
+    <div class="run-rec-item" data-pick-key="${escapeHtml(pick.key)}">
+      <div class="run-rec-item-main">
         <div class="run-rec-fighters">${size}-fight stack · ~${formatMinutes(total)}</div>
         <div class="run-rec-meta">${offBy} · watch in order</div>
         <div class="run-rec-stack-fights">${renderStackRows(fights)}</div>
       </div>
+      <div class="run-rec-actions-row run-rec-actions-row--stack">
+        ${queueActions}
+      </div>
     </div>
   `;
+}
+
+async function queuePickOnYouTube(pickKey) {
+  if (!currentRunRec?.picks) return;
+  const pick = currentRunRec.picks.find((p) => p.key === pickKey);
+  if (!pick) return;
+
+  if (!isSignedIn()) {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      window.alert(`Could not start Google sign-in: ${err.message}`);
+    }
+    return;
+  }
+
+  const fights = getFightsFromPick(pick);
+  const { videoIds, missing } = fightsToVideoIds(fights);
+
+  if (missing.length > 0) {
+    queueState.set(pickKey, {
+      status: "error",
+      error: "This pick includes a search-only link — choose a fight with a direct YouTube URL.",
+    });
+    renderRunRecommendations();
+    return;
+  }
+
+  queueState.set(pickKey, { status: "loading" });
+  renderRunRecommendations();
+
+  try {
+    const result = await syncYouTubeQueue(videoIds);
+    queueState.set(pickKey, { status: "success", openUrl: result.openUrl });
+  } catch (err) {
+    queueState.set(pickKey, {
+      status: "error",
+      error: err.message || "Could not queue on YouTube — try again.",
+    });
+  }
+
+  renderRunRecommendations();
 }
 
 function renderRunRecommendations() {
@@ -730,6 +831,7 @@ function renderRunRecommendations() {
     elements.runRefresh.classList.add("hidden");
     runPickIds = new Set();
     currentRunRec = null;
+    queueState.clear();
     return;
   }
 
@@ -766,8 +868,8 @@ function renderRunRecommendations() {
             currentRunRec.allWatchedInFilter
               ? "You’ve watched everything matching your filters — showing rewatches."
               : currentRunRec.hasCloseSingles
-                ? `${RUN_PICKS_SHOWN} picks — singles and stacks within ~${RUN_TOLERANCE_MIN} min.`
-                : "No exact single-fight match — stacks fill the gap, singles shown if close."
+                ? `${RUN_PICKS_SHOWN} picks within ~${RUN_TOLERANCE_MIN} min — choose one, then tap Queue on YouTube.`
+                : "Stacks fill the gap — choose one pick, then tap Queue on YouTube."
           }
         </p>
       </div>
@@ -783,6 +885,13 @@ function renderRunRecommendations() {
 
   document.getElementById("run-refresh-inline")?.addEventListener("click", refreshRunPicks);
   document.getElementById("run-clear-inline")?.addEventListener("click", clearRunTime);
+
+  elements.runRecommendations.querySelectorAll("[data-queue-pick-key]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      queuePickOnYouTube(btn.dataset.queuePickKey);
+    });
+  });
+
   elements.runRecommendations.classList.remove("hidden");
 }
 
@@ -888,6 +997,7 @@ function applyRunTime(minutes) {
 function refreshRunPicks() {
   if (activeRunMinutes == null) return;
   runRefreshSeed += 1;
+  queueState.clear();
   render();
 }
 
@@ -987,6 +1097,7 @@ async function bootstrap() {
   try {
     await initAuth();
     renderAuthBar();
+    onYouTubeReadyChange(() => renderAuthBar());
     onAuthChange(async () => {
       renderAuthBar();
       try {
