@@ -127,7 +127,7 @@ function updateMobileToolbar() {
   if (!elements.mobileRunToggle) return;
 
   const activeFilters = countActiveFilters();
-  const runLabel = activeRunMinutes != null ? `${activeRunMinutes} min run` : "Run time";
+  const runLabel = activeRunMinutes != null ? `${activeRunMinutes} min session` : "Session";
 
   if (elements.mobileRunLabel) {
     elements.mobileRunLabel.textContent = runLabel;
@@ -280,7 +280,7 @@ function renderAuthBar() {
         ${youtubeBadge}
         <button type="button" class="btn-auth btn-sign-out touch-target" id="sign-out">Sign out</button>
       </div>
-      <p class="auth-hint auth-hint--desktop">Watched list synced · queue run picks to YouTube.</p>
+      <p class="auth-hint auth-hint--desktop">Watched list synced · queue cardio picks to YouTube.</p>
       <p class="auth-hint auth-hint--mobile">Sync watched · queue to YouTube.</p>
     `;
 
@@ -301,7 +301,7 @@ function renderAuthBar() {
       <span class="btn-google-label btn-google-label--long">Sign in with Google</span>
       <span class="btn-google-label btn-google-label--short">Sign in</span>
     </button>
-    <p class="auth-hint auth-hint--desktop">Sign in with Google to sync watched fights and queue runs on YouTube.</p>
+    <p class="auth-hint auth-hint--desktop">Sign in with Google to sync watched fights and queue cardio picks on YouTube.</p>
     <p class="auth-hint auth-hint--mobile">Sign in to sync watched fights and queue on YouTube.</p>
   `;
 
@@ -744,7 +744,7 @@ function renderQueueActions(pick) {
   if (state?.status === "success" && state.openUrl) {
     const queuedLabel = state.playlistTitle
       ? `Queued as “${escapeHtml(state.playlistTitle)}”`
-      : "Queued — tap to start your run";
+      : "Queued — tap to start your workout";
     return `
       <a class="btn-youtube-open" href="${escapeHtml(state.openUrl)}" target="_blank" rel="noopener noreferrer">Open in YouTube ↗</a>
       <span class="run-rec-queue-success">${queuedLabel}</span>
@@ -784,7 +784,7 @@ function renderRunPick(pick) {
     const { fight, rawDiff } = pick;
     const offBy =
       rawDiff < 0.5
-        ? "matches your run"
+        ? "matches your session"
         : `${formatMinutes(rawDiff)} ${fight.durationMinutes > activeRunMinutes ? "over" : "under"}`;
     return `
       <div class="run-rec-item${isWatched(fight.id) ? " is-watched-rec" : ""}" data-pick-key="${escapeHtml(pick.key)}">
@@ -803,7 +803,7 @@ function renderRunPick(pick) {
   const { fights, total, rawDiff, size } = pick;
   const offBy =
     rawDiff < 0.5
-      ? "matches your run"
+      ? "matches your session"
       : `${formatMinutes(rawDiff)} ${total > activeRunMinutes ? "over" : "under"}`;
   return `
     <div class="run-rec-item" data-pick-key="${escapeHtml(pick.key)}">
@@ -909,7 +909,7 @@ function renderRunRecommendations() {
   elements.runRecommendations.innerHTML = `
     <div class="run-rec-header">
       <div>
-        <h2 class="run-rec-heading">Your ${activeRunMinutes}-minute run</h2>
+        <h2 class="run-rec-heading">Your ${activeRunMinutes}-minute session</h2>
         <p class="run-rec-sub" style="margin: 0">
           ${
             currentRunRec.allWatchedInFilter
@@ -921,12 +921,12 @@ function renderRunRecommendations() {
         </p>
       </div>
       <div class="run-rec-actions">
-        <button type="button" class="btn-clear-run" id="run-clear-inline">Clear run</button>
+        <button type="button" class="btn-clear-run" id="run-clear-inline">Clear session</button>
         <button type="button" class="btn-run-refresh" id="run-refresh-inline" title="Show different fight picks">New picks ↻</button>
       </div>
     </div>
     <div class="run-rec-section">
-      <div class="run-rec-list">${pickItems || `<p class="run-rec-sub">No fights match your run time and filters.</p>`}</div>
+      <div class="run-rec-list">${pickItems || `<p class="run-rec-sub">No fights match your session time and filters.</p>`}</div>
     </div>
   `;
 
@@ -951,7 +951,7 @@ function renderFightCard(fight) {
   const label = fight.watchLabel || "Watch";
   const isPick = runPickIds.has(fight.id);
   const watched = isWatched(fight.id);
-  const pickBadge = isPick ? `<span class="run-pick-badge">Run pick</span>` : "";
+  const pickBadge = isPick ? `<span class="run-pick-badge">Session pick</span>` : "";
 
   return `
     <article class="fight-card${isPick ? " run-pick" : ""}${watched ? " is-watched" : ""}" data-fight-id="${escapeHtml(fight.id)}">

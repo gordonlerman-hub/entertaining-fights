@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-const DEFAULT_PLAYLIST_TITLE = "Best Fights Run";
+const DEFAULT_PLAYLIST_TITLE = "Best Fights Cardio";
 const MAX_VIDEOS = 10;
 
 const corsHeaders = {
@@ -158,7 +158,7 @@ async function ensurePlaylistId(
   userId: string,
   accessToken: string,
   title = DEFAULT_PLAYLIST_TITLE,
-  description = "Queued from Best Fights treadmill watchlist"
+  description = "Queued from Best Fights cardio watchlist"
 ): Promise<string> {
   const { data: existing } = await supabase
     .from("user_youtube")
@@ -255,7 +255,7 @@ Deno.serve(async (req) => {
       const playlistDescription =
         typeof body.playlistDescription === "string" && body.playlistDescription.trim()
           ? body.playlistDescription.trim()
-          : "Queued from Best Fights treadmill watchlist";
+          : "Queued from Best Fights cardio watchlist";
 
       const playlistId = await ensurePlaylistId(
         supabase,

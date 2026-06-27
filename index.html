@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#f7f6f3">
+  <meta name="theme-color" content="#080b14">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Best Fights — Treadmill Watchlist</title>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Best Fights — Cardio Watchlist</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
     <div class="header-inner">
       <div class="brand">
         <h1>Best Fights</h1>
-        <p class="tagline">~100 action-packed fights for the treadmill — no spoilers</p>
+        <p class="tagline">~100 action-packed fights for cardio — no spoilers</p>
       </div>
       <div class="header-actions">
         <div class="auth-bar" id="auth-bar" aria-live="polite"></div>
@@ -38,14 +38,14 @@
         aria-controls="run-time-panel"
       >
         <span class="mobile-tool-icon" aria-hidden="true">⏱</span>
-        <span class="mobile-tool-label" id="mobile-run-label">Run time</span>
+        <span class="mobile-tool-label" id="mobile-run-label">Session</span>
       </button>
       <button
         type="button"
         class="mobile-clear-run touch-target hidden"
         id="mobile-clear-run"
-        aria-label="Clear run time"
-        title="Clear run time"
+        aria-label="Clear session time"
+        title="Clear session time"
       >
         ✕
       </button>
@@ -66,9 +66,9 @@
   <main class="main">
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-card run-time-panel" id="run-time-panel">
-        <label for="run-time">Run time</label>
-        <p class="run-time-hint">How long is your treadmill session? Then queue a pick to YouTube.</p>
-        <div class="run-time-presets" role="group" aria-label="Run time presets">
+        <label for="run-time">Session time</label>
+        <p class="run-time-hint">How long is your cardio session? Then queue a pick to YouTube.</p>
+        <div class="run-time-presets" role="group" aria-label="Session time presets">
           <button type="button" class="run-preset touch-target" data-minutes="20">20 min</button>
           <button type="button" class="run-preset touch-target" data-minutes="25">25 min</button>
           <button type="button" class="run-preset touch-target" data-minutes="30">30 min</button>
@@ -78,7 +78,7 @@
           <button type="button" class="btn-run-find touch-target" id="run-find">Find fights</button>
         </div>
         <div class="run-time-actions">
-          <button type="button" class="btn-clear-run touch-target hidden" id="clear-run">Clear run time</button>
+          <button type="button" class="btn-clear-run touch-target hidden" id="clear-run">Clear session</button>
           <button type="button" class="btn-run-refresh touch-target hidden" id="run-refresh" title="Show different fight picks">New picks ↻</button>
         </div>
       </div>
@@ -89,7 +89,7 @@
             <input type="checkbox" id="hide-watched" checked>
             Hide watched fights
           </label>
-          <p class="watched-filter-hint">On by default — run picks use unwatched fights only.</p>
+          <p class="watched-filter-hint">On by default — session picks use unwatched fights only.</p>
           <p class="watched-progress" id="watched-progress"></p>
           <button type="button" class="btn-reset-watched touch-target" id="reset-watched">Clear watched list</button>
         </div>
@@ -157,7 +157,7 @@
   </main>
 
   <footer class="site-footer">
-    <p>Winner intentionally omitted. Verify links before your run — uploads change over time.</p>
+    <p>Winner intentionally omitted. Verify links before your workout — uploads change over time.</p>
   </footer>
 
   <script src="js/app.js" type="module"></script>
