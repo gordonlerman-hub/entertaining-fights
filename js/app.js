@@ -127,7 +127,12 @@ function updateMobileToolbar() {
   if (!elements.mobileRunToggle) return;
 
   const activeFilters = countActiveFilters();
-  const runLabel = activeRunMinutes != null ? `${activeRunMinutes} min session` : "Session";
+  const runLabel =
+    activeRunMinutes != null
+      ? isMobileLayout()
+        ? `${activeRunMinutes} min`
+        : `${activeRunMinutes} min session`
+      : "Session";
 
   if (elements.mobileRunLabel) {
     elements.mobileRunLabel.textContent = runLabel;
@@ -276,8 +281,10 @@ function renderAuthBar() {
     elements.authBar.innerHTML = `
       <div class="auth-signed-in">
         ${avatarMarkup}
-        <span class="auth-name">${escapeHtml(label)}</span>
-        ${youtubeBadge}
+        <div class="auth-user-meta">
+          <span class="auth-name">${escapeHtml(label)}</span>
+          ${youtubeBadge}
+        </div>
         <button type="button" class="btn-auth btn-sign-out touch-target" id="sign-out">Sign out</button>
       </div>
       <p class="auth-hint auth-hint--desktop">Watched list synced · queue cardio picks to YouTube.</p>
