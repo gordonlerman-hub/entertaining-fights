@@ -1189,6 +1189,11 @@ function resetFilters() {
   clearRunTime();
 }
 
+document.getElementById("brand-home")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  window.location.reload();
+});
+
 elements.search.addEventListener("input", render);
 elements.sport.addEventListener("change", render);
 elements.duration.addEventListener("change", render);
