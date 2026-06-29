@@ -47,7 +47,8 @@ const elements = {
   watchedProgress: document.getElementById("watched-progress"),
   hideWatched: document.getElementById("hide-watched"),
   resetWatched: document.getElementById("reset-watched"),
-  search: document.getElementById("search"),
+  fighterSearch: document.getElementById("fighter-search"),
+  fighterSuggestions: document.getElementById("fighter-suggestions"),
   sport: document.getElementById("sport"),
   duration: document.getElementById("duration"),
   ending: document.getElementById("ending"),
@@ -61,6 +62,9 @@ const elements = {
 };
 
 let allFights = [];
+let allFighters = [];
+let selectedFighter = null;
+let suggestionHighlight = -1;
 let activeRunMinutes = null;
 let runPickIds = new Set();
 let runRefreshSeed = 0;
@@ -115,7 +119,7 @@ function toggleMobileFiltersPanel() {
 
 function countActiveFilters() {
   let count = 0;
-  if (elements.search.value.trim()) count += 1;
+  if (elements.fighterSearch.value.trim()) count += 1;
   if (elements.sport.value !== "all") count += 1;
   if (elements.duration.value !== "all") count += 1;
   if (elements.ending.value !== "all") count += 1;
@@ -408,8 +412,75 @@ async function loadFights() {
     ...fight,
     watchUrl: fight.watchUrl || youtubeSearch(`${fight.event} ${fight.fighter1} ${fight.fighter2} full fight`),
   }));
+  buildFighterList();
   renderStats();
   render();
+}
+
+function buildFighterList() {
+  const names = new Set();
+  allFights.forEach((fight) => {
+    names.add(fight.fighter1);
+    names.add(fight.fighter2);
+  });
+  allFighters = [...names].sort((a, b) => a.localeCompare(b));
+}
+
+function getFighterSuggestions(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return allFighters.filter((name) => name.toLowerCase().includes(q)).slice(0, 10);
+}
+
+function hideFighterSuggestions() {
+  elements.fighterSuggestions.classList.add("hidden");
+  elements.fighterSearch.setAttribute("aria-expanded", "false");
+  suggestionHighlight = -1;
+}
+
+function renderFighterSuggestions(query) {
+  const suggestions = getFighterSuggestions(query);
+  const list = elements.fighterSuggestions;
+
+  if (!query.trim() || suggestions.length === 0) {
+    hideFighterSuggestions();
+    return;
+  }
+
+  list.innerHTML = suggestions
+    .map(
+      (name, index) => `
+        <li
+          role="option"
+          data-fighter="${escapeHtml(name)}"
+          aria-selected="${index === suggestionHighlight}"
+          class="${index === suggestionHighlight ? "is-highlighted" : ""}"
+        >${escapeHtml(name)}</li>
+      `
+    )
+    .join("");
+
+  list.classList.remove("hidden");
+  elements.fighterSearch.setAttribute("aria-expanded", "true");
+}
+
+function selectFighter(name) {
+  selectedFighter = name;
+  elements.fighterSearch.value = name;
+  hideFighterSuggestions();
+  render();
+}
+
+function fightMatchesFighterQuery(fight, query) {
+  if (!query) return true;
+
+  if (selectedFighter && selectedFighter.toLowerCase() === query) {
+    return fight.fighter1 === selectedFighter || fight.fighter2 === selectedFighter;
+  }
+
+  const matchF1 = fight.fighter1.toLowerCase().includes(query);
+  const matchF2 = fight.fighter2.toLowerCase().includes(query);
+  return matchF1 || matchF2;
 }
 
 function isStatPillActive(filter) {
@@ -501,28 +572,14 @@ function renderStats() {
 }
 
 function getBaseFilteredFights() {
-  const query = elements.search.value.trim().toLowerCase();
+  const query = elements.fighterSearch.value.trim().toLowerCase();
   const sport = elements.sport.value;
   const ending = elements.ending.value;
 
   return allFights.filter((fight) => {
     if (sport !== "all" && fight.sport !== sport) return false;
     if (ending !== "all" && fight.endingCategory !== ending) return false;
-
-    if (query) {
-      const haystack = [
-        fight.fighter1,
-        fight.fighter2,
-        fight.event,
-        fight.ending,
-        SPORT_LABELS[fight.sport],
-        String(fight.year),
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!haystack.includes(query)) return false;
-    }
-
+    if (!fightMatchesFighterQuery(fight, query)) return false;
     return true;
   });
 }
@@ -1122,7 +1179,14 @@ function render({ regenerateRunPicks = false } = {}) {
   const fights = getFilteredFights();
   elements.resultsCount.classList.remove("hidden");
 
-  if (fights.length === allFights.length) {
+  const fighterQuery = elements.fighterSearch.value.trim();
+  if (fighterQuery) {
+    const label = selectedFighter || fighterQuery;
+    elements.resultsCount.textContent =
+      fights.length === 1
+        ? `1 fight with ${label}`
+        : `${fights.length} fights with ${label}`;
+  } else if (fights.length === allFights.length) {
     elements.resultsCount.textContent = `Showing all ${fights.length} fights`;
   } else {
     elements.resultsCount.textContent = `Showing ${fights.length} of ${allFights.length} fights`;
@@ -1180,7 +1244,9 @@ function clearRunTime() {
 }
 
 function resetFilters() {
-  elements.search.value = "";
+  elements.fighterSearch.value = "";
+  selectedFighter = null;
+  hideFighterSuggestions();
   elements.sport.value = "all";
   elements.duration.value = "all";
   elements.ending.value = "all";
@@ -1194,7 +1260,52 @@ document.getElementById("brand-home")?.addEventListener("click", (e) => {
   window.location.reload();
 });
 
-elements.search.addEventListener("input", render);
+elements.fighterSearch.addEventListener("input", () => {
+  if (selectedFighter && elements.fighterSearch.value.trim() !== selectedFighter) {
+    selectedFighter = null;
+  }
+  suggestionHighlight = -1;
+  renderFighterSuggestions(elements.fighterSearch.value);
+  render();
+});
+
+elements.fighterSearch.addEventListener("focus", () => {
+  renderFighterSuggestions(elements.fighterSearch.value);
+});
+
+elements.fighterSearch.addEventListener("keydown", (e) => {
+  const suggestions = getFighterSuggestions(elements.fighterSearch.value);
+  if (suggestions.length === 0) return;
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    suggestionHighlight = Math.min(suggestionHighlight + 1, suggestions.length - 1);
+    renderFighterSuggestions(elements.fighterSearch.value);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    suggestionHighlight = Math.max(suggestionHighlight - 1, 0);
+    renderFighterSuggestions(elements.fighterSearch.value);
+  } else if (e.key === "Enter" && suggestionHighlight >= 0) {
+    e.preventDefault();
+    selectFighter(suggestions[suggestionHighlight]);
+  } else if (e.key === "Escape") {
+    hideFighterSuggestions();
+  }
+});
+
+elements.fighterSuggestions.addEventListener("mousedown", (e) => {
+  const option = e.target.closest("[data-fighter]");
+  if (!option) return;
+  e.preventDefault();
+  selectFighter(option.dataset.fighter);
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".fighter-search-wrap")) {
+    hideFighterSuggestions();
+  }
+});
+
 elements.sport.addEventListener("change", render);
 elements.duration.addEventListener("change", render);
 elements.ending.addEventListener("change", render);

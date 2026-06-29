@@ -1034,6 +1034,40 @@ select:focus {
   outline-offset: 1px;
 }
 
+.fighter-search-wrap {
+  position: relative;
+}
+
+.fighter-suggestions {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.fighter-suggestions li {
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.1s;
+}
+
+.fighter-suggestions li:hover,
+.fighter-suggestions li.is-highlighted {
+  background: var(--surface-hover);
+  color: var(--accent-light);
+}
+
 .btn-reset {
   margin-top: 0.25rem;
   min-height: var(--touch-min);

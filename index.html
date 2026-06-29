@@ -98,9 +98,22 @@
         </div>
 
         <div class="sidebar-card filters-panel">
-        <div class="filter-group">
-          <label for="search">Search</label>
-          <input type="search" id="search" class="touch-input" placeholder="Fighter, event…" autocomplete="off">
+        <div class="filter-group fighter-search-group">
+          <label for="fighter-search">Fighter</label>
+          <div class="fighter-search-wrap">
+            <input
+              type="search"
+              id="fighter-search"
+              class="touch-input"
+              placeholder="Start typing a name…"
+              autocomplete="off"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="fighter-suggestions"
+              aria-autocomplete="list"
+            >
+            <ul class="fighter-suggestions hidden" id="fighter-suggestions" role="listbox"></ul>
+          </div>
         </div>
 
         <div class="filter-group">
@@ -164,6 +177,6 @@
     <p>Winner intentionally omitted. Verify links before your workout — uploads change over time.</p>
   </footer>
 
-  <script src="js/app.js?v=202606293" type="module"></script>
+  <script src="js/app.js?v=202606294" type="module"></script>
 </body>
 </html>
