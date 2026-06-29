@@ -753,15 +753,18 @@ function renderStackRows(fights) {
   return fights
     .map(
       (fight, index) => `
-        <div class="run-rec-stack-row">
+        <div class="run-rec-stack-row${isWatched(fight.id) ? " is-watched-rec" : ""}">
           <span class="run-rec-stack-row-main">
             <span class="run-rec-stack-fighters">${index + 1}. ${escapeHtml(fightLabel(fight))}</span>
             <span class="run-rec-stack-detail">
               <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(sportLabel(fight.sport))}</span>
-              ${escapeHtml(fight.ending)} · ${escapeHtml(fight.duration)}${isWatched(fight.id) ? " · watched" : ""}
+              ${escapeHtml(fight.ending)} · ${escapeHtml(fight.duration)}
             </span>
           </span>
-          <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
+          <div class="run-rec-stack-row-actions">
+            ${renderWatchedToggle(fight.id)}
+            <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
+          </div>
         </div>
       `
     )
@@ -778,11 +781,17 @@ function renderQueueActions(pick) {
   const signedIn = isSignedIn();
 
   if (state?.status === "success" && state.openUrl) {
+    const fights = getFightsFromPick(pick);
+    const allWatched = fights.every((f) => isWatched(f.id));
     const queuedLabel = state.playlistTitle
       ? `Queued as “${escapeHtml(state.playlistTitle)}”`
       : "Queued — tap to start your workout";
+    const markWatchedBtn = allWatched
+      ? `<span class="run-rec-marked-watched">Marked as watched</span>`
+      : `<button type="button" class="btn-mark-watched touch-target" data-mark-watched-pick-key="${escapeHtml(pickKey)}">Mark as watched</button>`;
     return `
       <a class="btn-youtube-open" href="${escapeHtml(state.openUrl)}" target="_blank" rel="noopener noreferrer">Open in YouTube ↗</a>
+      ${markWatchedBtn}
       <span class="run-rec-queue-success">${queuedLabel}</span>
     `;
   }
@@ -830,6 +839,7 @@ function renderRunPick(pick) {
           ${renderRunFightDetails(fight)}
         </div>
         <div class="run-rec-actions-row">
+          ${renderWatchedToggle(fight.id)}
           <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
           ${queueActions}
         </div>
@@ -854,6 +864,24 @@ function renderRunPick(pick) {
       </div>
     </div>
   `;
+}
+
+async function markPickAsWatched(pickKey) {
+  if (!currentRunRec?.picks) return;
+  const pick = currentRunRec.picks.find((p) => p.key === pickKey);
+  if (!pick) return;
+
+  const fights = getFightsFromPick(pick);
+  try {
+    for (const fight of fights) {
+      if (!isWatched(fight.id)) {
+        await toggleWatched(fight.id);
+      }
+    }
+    render();
+  } catch (err) {
+    window.alert(`Could not mark fights as watched: ${err.message}`);
+  }
 }
 
 async function queuePickOnYouTube(pickKey) {
@@ -973,6 +1001,12 @@ function renderRunRecommendations() {
   elements.runRecommendations.querySelectorAll("[data-queue-pick-key]").forEach((btn) => {
     btn.addEventListener("click", () => {
       queuePickOnYouTube(btn.dataset.queuePickKey);
+    });
+  });
+
+  elements.runRecommendations.querySelectorAll("[data-mark-watched-pick-key]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      markPickAsWatched(btn.dataset.markWatchedPickKey);
     });
   });
 

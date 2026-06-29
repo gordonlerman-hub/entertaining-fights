@@ -836,6 +836,54 @@ input[type="number"]:focus {
   cursor: wait;
 }
 
+.btn-mark-watched {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--success-border, rgba(72, 187, 120, 0.45));
+  background: rgba(72, 187, 120, 0.12);
+  color: var(--success);
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-mark-watched:hover {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+
+.run-rec-marked-watched {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.run-rec-stack-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  flex: 0 0 auto;
+}
+
+.run-rec-stack-row .watched-control,
+.run-rec-actions-row .watched-control {
+  margin-bottom: 0;
+  min-height: auto;
+  font-size: 0.78rem;
+}
+
+.run-rec-stack-row.is-watched-rec {
+  opacity: 0.65;
+}
+
 .run-rec-stack {
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -1279,6 +1327,145 @@ select:focus {
   line-height: 1.4;
 }
 
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.feedback-type-group {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.feedback-type-legend {
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.feedback-type-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.feedback-type-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.feedback-type-option:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-light);
+}
+
+.feedback-type-option input {
+  accent-color: var(--accent);
+}
+
+.feedback-hint {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.feedback-textarea {
+  resize: vertical;
+  min-height: 8rem;
+  line-height: 1.5;
+}
+
+input[type="email"],
+.feedback-textarea {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+input[type="email"]:focus,
+.feedback-textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.feedback-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.feedback-status {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.feedback-status--success {
+  border-color: rgba(74, 222, 128, 0.35);
+  background: rgba(74, 222, 128, 0.08);
+  color: var(--success);
+}
+
+.feedback-status--error {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.08);
+  color: #fca5a5;
+}
+
+.btn-feedback-submit {
+  align-self: flex-start;
+  min-height: var(--touch-min);
+  padding: 0.7rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-on-dark);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.btn-feedback-submit:hover:not(:disabled) {
+  opacity: 0.92;
+  background: var(--accent-light);
+}
+
+.btn-feedback-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Tablet & phone */
 @media (max-width: 900px) {
   :root {
@@ -1657,7 +1844,8 @@ select:focus {
 
   .run-rec-item a,
   .run-rec-actions-row .btn-youtube-queue,
-  .run-rec-actions-row .btn-youtube-open {
+  .run-rec-actions-row .btn-youtube-open,
+  .run-rec-actions-row .btn-mark-watched {
     width: 100%;
   }
 

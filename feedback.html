@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080b14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Send feedback or report a bug for Best Fights.">
+  <title>Feedback — Best Fights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <h1><a href="index.html" class="brand-link">Best Fights</a></h1>
+        <p class="tagline">~100 action-packed fights for cardio — no spoilers</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="content-page">
+    <h2>Feedback</h2>
+    <p class="content-lead">Ideas, praise, or something broken — I read every message.</p>
+
+    <form class="feedback-form" id="feedback-form" novalidate>
+      <fieldset class="feedback-type-group">
+        <legend class="feedback-type-legend">What is this about?</legend>
+        <div class="feedback-type-options">
+          <label class="feedback-type-option">
+            <input type="radio" name="type" value="general" checked>
+            <span>General feedback</span>
+          </label>
+          <label class="feedback-type-option">
+            <input type="radio" name="type" value="bug">
+            <span>Bug report</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="filter-group">
+        <label for="feedback-email">Your email</label>
+        <input
+          type="email"
+          id="feedback-email"
+          name="email"
+          class="touch-input"
+          autocomplete="email"
+          placeholder="you@example.com"
+          required
+        >
+        <p class="feedback-hint">So I can reply if needed.</p>
+      </div>
+
+      <div class="filter-group">
+        <label for="feedback-message">Message</label>
+        <textarea
+          id="feedback-message"
+          name="message"
+          class="touch-input feedback-textarea"
+          rows="6"
+          placeholder="Tell me what's on your mind…"
+          required
+          maxlength="5000"
+        ></textarea>
+      </div>
+
+      <div class="feedback-honeypot" aria-hidden="true">
+        <label for="feedback-website">Website</label>
+        <input type="text" id="feedback-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <p class="feedback-status hidden" id="feedback-status" role="status" aria-live="polite"></p>
+
+      <button type="submit" class="btn-feedback-submit touch-target" id="feedback-submit">
+        Send feedback
+      </button>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    <p class="site-footer-nav">
+      <a href="index.html">← Back to fights</a>
+      ·
+      <a href="about.html">About</a>
+    </p>
+    <p>Winner intentionally omitted. Verify links before your workout — uploads change over time.</p>
+  </footer>
+
+  <script src="js/feedback.js" type="module"></script>
+</body>
+</html>
