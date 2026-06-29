@@ -721,6 +721,47 @@ input[type="number"]:focus {
   color: var(--text-muted);
 }
 
+.run-rec-fight-details {
+  margin-top: 0.65rem;
+}
+
+.run-rec-fight-details .sport-badge {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.run-rec-meta-grid {
+  margin-bottom: 0;
+  padding-top: 0.65rem;
+}
+
+.run-rec-stack-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1 1 12rem;
+}
+
+.run-rec-stack-fighters {
+  font-weight: 600;
+}
+
+.run-rec-stack-detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.run-rec-stack-detail .sport-badge {
+  font-size: 0.58rem;
+  padding: 0.18rem 0.42rem;
+}
+
 .run-rec-item a {
   display: inline-flex;
   align-items: center;

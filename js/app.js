@@ -575,6 +575,29 @@ function fightLabel(fight) {
   return `${fight.fighter1} vs ${fight.fighter2}`;
 }
 
+function sportLabel(sport) {
+  return SPORT_LABELS[sport] || sport;
+}
+
+function renderRunFightDetails(fight) {
+  const label = sportLabel(fight.sport);
+  return `
+    <div class="run-rec-fight-details">
+      <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(label)}</span>
+      <dl class="meta-grid run-rec-meta-grid">
+        <div class="meta-item">
+          <dt>Duration</dt>
+          <dd>${escapeHtml(fight.duration)}</dd>
+        </div>
+        <div class="meta-item">
+          <dt>How it ends</dt>
+          <dd>${escapeHtml(fight.ending)}</dd>
+        </div>
+      </dl>
+    </div>
+  `;
+}
+
 function comboKey(fights) {
   return fights
     .map((f) => f.id)
@@ -731,7 +754,13 @@ function renderStackRows(fights) {
     .map(
       (fight, index) => `
         <div class="run-rec-stack-row">
-          <span>${index + 1}. ${escapeHtml(fightLabel(fight))} <em>(${escapeHtml(fight.duration)})</em>${isWatched(fight.id) ? " · watched" : ""}</span>
+          <span class="run-rec-stack-row-main">
+            <span class="run-rec-stack-fighters">${index + 1}. ${escapeHtml(fightLabel(fight))}</span>
+            <span class="run-rec-stack-detail">
+              <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(sportLabel(fight.sport))}</span>
+              ${escapeHtml(fight.ending)} · ${escapeHtml(fight.duration)}${isWatched(fight.id) ? " · watched" : ""}
+            </span>
+          </span>
           <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
         </div>
       `
@@ -797,7 +826,8 @@ function renderRunPick(pick) {
       <div class="run-rec-item${isWatched(fight.id) ? " is-watched-rec" : ""}" data-pick-key="${escapeHtml(pick.key)}">
         <div class="run-rec-item-main">
           <div class="run-rec-fighters">${escapeHtml(fightLabel(fight))}</div>
-          <div class="run-rec-meta">${escapeHtml(fight.duration)} · ${escapeHtml(SPORT_LABELS[fight.sport])} · ${offBy}</div>
+          <div class="run-rec-meta">${escapeHtml(offBy)}</div>
+          ${renderRunFightDetails(fight)}
         </div>
         <div class="run-rec-actions-row">
           <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
@@ -954,8 +984,8 @@ function sportClass(sport) {
 }
 
 function renderFightCard(fight) {
-  const sportLabel = SPORT_LABELS[fight.sport] || fight.sport;
-  const label = fight.watchLabel || "Watch";
+  const sport = sportLabel(fight.sport);
+  const watchLabel = fight.watchLabel || "Watch";
   const isPick = runPickIds.has(fight.id);
   const watched = isWatched(fight.id);
   const pickBadge = isPick ? `<span class="run-pick-badge">Session pick</span>` : "";
@@ -965,7 +995,7 @@ function renderFightCard(fight) {
       ${pickBadge}
       ${renderWatchedToggle(fight.id)}
       <div class="fight-card-header">
-        <span class="sport-badge ${sportClass(fight.sport)}">${sportLabel}</span>
+        <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(sport)}</span>
         <span class="fight-year">${fight.year}</span>
       </div>
       <h2 class="fighters">${escapeHtml(fight.fighter1)} vs ${escapeHtml(fight.fighter2)}</h2>
@@ -981,7 +1011,7 @@ function renderFightCard(fight) {
         </div>
       </dl>
       <a class="watch-link" href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">
-        ${escapeHtml(label)} ↗
+        ${escapeHtml(watchLabel)} ↗
       </a>
     </article>
   `;
