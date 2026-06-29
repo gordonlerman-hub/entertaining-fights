@@ -8,13 +8,15 @@ import {
   onAuthChange,
   signInWithGoogle,
   signOut,
-} from "./auth.js";
+} from "./auth.js?v=202606296";
 import {
+  appendToYouTubeQueue,
+  clearYouTubeQueue,
   fightsToVideoIds,
   isYouTubeReady,
   onYouTubeReadyChange,
   syncYouTubeQueue,
-} from "./youtube.js";
+} from "./youtube.js?v=202606296";
 
 const SPORT_LABELS = {
   boxing: "Boxing",
@@ -44,6 +46,7 @@ const elements = {
   resultsCount: document.getElementById("results-count"),
   emptyState: document.getElementById("empty-state"),
   runRecommendations: document.getElementById("run-recommendations"),
+  youtubeQueueBar: document.getElementById("youtube-queue-bar"),
   watchedProgress: document.getElementById("watched-progress"),
   hideWatched: document.getElementById("hide-watched"),
   resetWatched: document.getElementById("reset-watched"),
@@ -74,6 +77,11 @@ let watchedIds = new Set();
 let statFilter = { watched: "unwatched" };
 /** @type {Map<string, { status: string, openUrl?: string, error?: string }>} */
 const queueState = new Map();
+/** @type {Map<string, { status: string, error?: string }>} */
+const fightQueueState = new Map();
+/** @type {{ fightIds: string[], openUrl: string | null, playlistTitle: string | null }} */
+let youtubeStack = { fightIds: [], openUrl: null, playlistTitle: null };
+const MAX_YOUTUBE_STACK = 10;
 
 function isMobileLayout() {
   return MOBILE_LAYOUT_MQ.matches;
@@ -318,8 +326,8 @@ function renderAuthBar() {
         </div>
         <button type="button" class="btn-auth btn-sign-out touch-target" id="sign-out">Sign out</button>
       </div>
-      <p class="auth-hint auth-hint--desktop">Watched list synced · queue cardio picks to YouTube.</p>
-      <p class="auth-hint auth-hint--mobile">Sync watched · queue to YouTube.</p>
+      <p class="auth-hint auth-hint--desktop">Watched list synced · queue fights to YouTube from the grid or session picks.</p>
+      <p class="auth-hint auth-hint--mobile">Sync watched · queue fights to YouTube.</p>
     `;
 
     document.getElementById("sign-out")?.addEventListener("click", async () => {
@@ -339,7 +347,7 @@ function renderAuthBar() {
       <span class="btn-google-label btn-google-label--long">Sign in with Google</span>
       <span class="btn-google-label btn-google-label--short">Sign in</span>
     </button>
-    <p class="auth-hint auth-hint--desktop">Sign in with Google to sync watched fights and queue cardio picks on YouTube.</p>
+    <p class="auth-hint auth-hint--desktop">Sign in with Google to sync watched fights and queue on YouTube.</p>
     <p class="auth-hint auth-hint--mobile">Sign in to sync watched fights and queue on YouTube.</p>
   `;
 
@@ -859,6 +867,170 @@ function getFightsFromPick(pick) {
   return pick.type === "single" ? [pick.fight] : pick.fights;
 }
 
+function getStackedFights() {
+  return youtubeStack.fightIds
+    .map((id) => allFights.find((f) => f.id === id))
+    .filter(Boolean);
+}
+
+function setYouTubeStackFromFights(fights, result) {
+  youtubeStack = {
+    fightIds: fights.map((f) => f.id),
+    openUrl: result.openUrl ?? null,
+    playlistTitle: result.playlistTitle ?? null,
+  };
+}
+
+function renderYouTubeQueueBar() {
+  if (!elements.youtubeQueueBar) return;
+
+  const count = youtubeStack.fightIds.length;
+  if (count === 0 || activeRunMinutes != null) {
+    elements.youtubeQueueBar.classList.add("hidden");
+    elements.youtubeQueueBar.innerHTML = "";
+    return;
+  }
+
+  const label =
+    count === 1
+      ? "1 fight queued on YouTube"
+      : `${count} fights queued on YouTube — plays in order`;
+
+  elements.youtubeQueueBar.innerHTML = `
+    <div class="youtube-queue-bar-inner">
+      <p class="youtube-queue-bar-label">${label}</p>
+      <div class="youtube-queue-bar-actions">
+        ${
+          youtubeStack.openUrl
+            ? `<a class="btn-youtube-open" href="${escapeHtml(youtubeStack.openUrl)}" target="_blank" rel="noopener noreferrer">Open in YouTube ↗</a>`
+            : ""
+        }
+        <button type="button" class="btn-clear-youtube-queue touch-target" id="clear-youtube-queue">Clear queue</button>
+      </div>
+    </div>
+  `;
+  elements.youtubeQueueBar.classList.remove("hidden");
+
+  document.getElementById("clear-youtube-queue")?.addEventListener("click", () => {
+    clearYouTubeStack().catch((err) => {
+      window.alert(`Could not clear queue: ${err.message}`);
+    });
+  });
+}
+
+function renderFightQueueActions(fight) {
+  const stackIndex = youtubeStack.fightIds.indexOf(fight.id);
+  const state = fightQueueState.get(fight.id);
+  const signedIn = isSignedIn();
+
+  if (stackIndex >= 0 && state?.status !== "loading") {
+    return `<span class="fight-queue-badge">#${stackIndex + 1} in queue</span>`;
+  }
+
+  if (state?.status === "loading") {
+    return `<button type="button" class="btn-youtube-queue" disabled>Queuing…</button>`;
+  }
+
+  const title = !signedIn
+    ? "Sign in to queue on YouTube"
+    : !isYouTubeReady()
+      ? "Setting up YouTube — try again in a moment"
+      : youtubeStack.fightIds.length > 0
+        ? "Add this fight after the ones already queued"
+        : "Save this fight to your YouTube playlist";
+
+  let errorMarkup = "";
+  if (state?.status === "error" && state.error) {
+    errorMarkup = `<p class="fight-queue-error" role="alert">${escapeHtml(state.error)}</p>`;
+  }
+
+  return `
+    <button
+      type="button"
+      class="btn-youtube-queue touch-target"
+      data-queue-fight-id="${escapeHtml(fight.id)}"
+      title="${escapeHtml(title)}"
+    >Queue on YouTube</button>
+    ${errorMarkup}
+  `;
+}
+
+async function queueFightOnYouTube(fightId) {
+  const fight = allFights.find((f) => f.id === fightId);
+  if (!fight) return;
+
+  if (youtubeStack.fightIds.includes(fightId)) return;
+
+  if (!isSignedIn()) {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      window.alert(`Could not start Google sign-in: ${err.message}`);
+    }
+    return;
+  }
+
+  const { videoIds, missing } = fightsToVideoIds([fight]);
+  if (missing.length > 0) {
+    fightQueueState.set(fightId, {
+      status: "error",
+      error: "This fight only has a search link — pick one with a direct YouTube URL.",
+    });
+    render();
+    return;
+  }
+
+  if (youtubeStack.fightIds.length >= MAX_YOUTUBE_STACK) {
+    fightQueueState.set(fightId, {
+      status: "error",
+      error: `Queue full — maximum ${MAX_YOUTUBE_STACK} fights.`,
+    });
+    render();
+    return;
+  }
+
+  fightQueueState.set(fightId, { status: "loading" });
+  render();
+
+  const nextFights = [...getStackedFights(), fight];
+
+  try {
+    const result =
+      youtubeStack.fightIds.length === 0
+        ? await syncYouTubeQueue(videoIds, { fights: nextFights })
+        : await appendToYouTubeQueue(videoIds, { fights: nextFights });
+
+    fightQueueState.delete(fightId);
+    setYouTubeStackFromFights(nextFights, result);
+  } catch (err) {
+    fightQueueState.set(fightId, {
+      status: "error",
+      error: err.message || "Could not queue on YouTube — try again.",
+    });
+  }
+
+  render();
+}
+
+async function clearYouTubeStack() {
+  if (!isSignedIn()) {
+    youtubeStack = { fightIds: [], openUrl: null, playlistTitle: null };
+    fightQueueState.clear();
+    render();
+    return;
+  }
+
+  try {
+    await clearYouTubeQueue();
+  } catch (err) {
+    throw err;
+  }
+
+  youtubeStack = { fightIds: [], openUrl: null, playlistTitle: null };
+  fightQueueState.clear();
+  render();
+}
+
 function renderQueueActions(pick) {
   const pickKey = pick.key;
   const state = queueState.get(pickKey);
@@ -998,6 +1170,8 @@ async function queuePickOnYouTube(pickKey) {
       openUrl: result.openUrl,
       playlistTitle: result.playlistTitle,
     });
+    setYouTubeStackFromFights(fights, result);
+    fightQueueState.clear();
   } catch (err) {
     queueState.set(pickKey, {
       status: "error",
@@ -1140,6 +1314,9 @@ function renderFightCard(fight) {
       <a class="watch-link" href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">
         ${escapeHtml(watchLabel)} ↗
       </a>
+      <div class="fight-card-actions">
+        ${renderFightQueueActions(fight)}
+      </div>
     </article>
   `;
 }
@@ -1173,6 +1350,7 @@ function render({ regenerateRunPicks = false } = {}) {
     elements.resultsCount.classList.add("hidden");
     elements.grid.classList.add("hidden");
     elements.emptyState.classList.add("hidden");
+    renderYouTubeQueueBar();
     return;
   }
 
@@ -1195,6 +1373,13 @@ function render({ regenerateRunPicks = false } = {}) {
   elements.grid.innerHTML = fights.map(renderFightCard).join("");
   elements.emptyState.classList.toggle("hidden", fights.length > 0);
   elements.grid.classList.toggle("hidden", fights.length === 0);
+  renderYouTubeQueueBar();
+
+  elements.grid.querySelectorAll("[data-queue-fight-id]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      queueFightOnYouTube(btn.dataset.queueFightId);
+    });
+  });
 }
 
 function updatePresetButtons() {
@@ -1383,6 +1568,11 @@ async function bootstrap() {
     onYouTubeReadyChange(() => renderAuthBar());
     onAuthChange(async () => {
       renderAuthBar();
+      if (!isSignedIn()) {
+        youtubeStack = { fightIds: [], openUrl: null, playlistTitle: null };
+        fightQueueState.clear();
+        queueState.clear();
+      }
       try {
         await loadWatchedIds();
       } catch (err) {

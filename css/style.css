@@ -1245,6 +1245,86 @@ select:focus {
   color: var(--accent-on-dark);
 }
 
+.fight-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.fight-card-actions .btn-youtube-queue {
+  flex: 1 1 auto;
+}
+
+.fight-queue-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--success);
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.fight-queue-error {
+  margin: 0;
+  flex: 1 1 100%;
+  font-size: 0.75rem;
+  color: var(--accent-light);
+}
+
+.youtube-queue-bar {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 60, 60, 0.35);
+  background: rgba(255, 0, 0, 0.08);
+}
+
+.youtube-queue-bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.youtube-queue-bar-label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ff9a9a;
+}
+
+.youtube-queue-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-clear-youtube-queue {
+  min-height: var(--touch-min);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-clear-youtube-queue:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;

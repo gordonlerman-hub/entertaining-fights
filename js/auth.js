@@ -28,7 +28,7 @@ function notifyAuthChange() {
 }
 
 async function handleYouTubeSession(session) {
-  const { fetchYouTubeStatus, registerYouTube, setYouTubeReady } = await import("./youtube.js");
+  const { fetchYouTubeStatus, registerYouTube, setYouTubeReady } = await import("./youtube.js?v=202606296");
 
   if (!session?.user) {
     setYouTubeReady(false);

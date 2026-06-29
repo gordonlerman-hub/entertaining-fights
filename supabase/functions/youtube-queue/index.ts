@@ -8,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type Action = "register" | "sync" | "status";
+type Action = "register" | "sync" | "append" | "clear" | "status";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -121,6 +121,35 @@ async function clearPlaylist(accessToken: string, playlistId: string) {
 
     pageToken = listData.nextPageToken;
   } while (pageToken);
+}
+
+async function getPlaylistVideoIds(accessToken: string, playlistId: string): Promise<string[]> {
+  const videoIds: string[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const params = new URLSearchParams({
+      part: "snippet",
+      playlistId,
+      maxResults: "50",
+    });
+    if (pageToken) params.set("pageToken", pageToken);
+
+    const listResponse = await youtubeFetch(accessToken, `/playlistItems?${params}`);
+    const listData = await listResponse.json();
+    if (!listResponse.ok) {
+      throw new Error(listData.error?.message || "Failed to list playlist items");
+    }
+
+    for (const item of listData.items || []) {
+      const videoId = item.snippet?.resourceId?.videoId;
+      if (videoId) videoIds.push(videoId);
+    }
+
+    pageToken = listData.nextPageToken;
+  } while (pageToken);
+
+  return videoIds;
 }
 
 async function addVideosToPlaylist(
@@ -236,6 +265,75 @@ Deno.serve(async (req) => {
       const accessToken = requireGoogleAccessToken(body);
       const playlistId = await ensurePlaylistId(supabase, user.id, accessToken);
       return jsonResponse({ playlistId, ready: true });
+    }
+
+    if (action === "clear") {
+      const accessToken = requireGoogleAccessToken(body);
+      const { data } = await supabase
+        .from("user_youtube")
+        .select("playlist_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (data?.playlist_id) {
+        await clearPlaylist(accessToken, data.playlist_id);
+        await updatePlaylist(
+          accessToken,
+          data.playlist_id,
+          DEFAULT_PLAYLIST_TITLE,
+          "Queued from Best Fights"
+        );
+      }
+
+      return jsonResponse({ cleared: true });
+    }
+
+    if (action === "append") {
+      const videoIds = body.videoIds as string[] | undefined;
+      if (!Array.isArray(videoIds) || videoIds.length === 0) {
+        return jsonResponse({ error: "No videos to queue" }, 400);
+      }
+
+      const accessToken = requireGoogleAccessToken(body);
+      const playlistTitle =
+        typeof body.playlistTitle === "string" && body.playlistTitle.trim()
+          ? body.playlistTitle.trim()
+          : DEFAULT_PLAYLIST_TITLE;
+      const playlistDescription =
+        typeof body.playlistDescription === "string" && body.playlistDescription.trim()
+          ? body.playlistDescription.trim()
+          : "Queued from Best Fights";
+
+      const playlistId = await ensurePlaylistId(
+        supabase,
+        user.id,
+        accessToken,
+        playlistTitle,
+        playlistDescription
+      );
+
+      const existingIds = await getPlaylistVideoIds(accessToken, playlistId);
+      if (existingIds.length + videoIds.length > MAX_VIDEOS) {
+        return jsonResponse(
+          {
+            error: `Queue full — maximum ${MAX_VIDEOS} videos (${existingIds.length} already queued)`,
+          },
+          400
+        );
+      }
+
+      await updatePlaylist(accessToken, playlistId, playlistTitle, playlistDescription);
+      await addVideosToPlaylist(accessToken, playlistId, videoIds);
+
+      const allIds = [...existingIds, ...videoIds];
+      const firstVideoId = allIds[0];
+      return jsonResponse({
+        playlistId,
+        firstVideoId,
+        openUrl: buildOpenUrl(playlistId, firstVideoId),
+        playlistTitle,
+        queueLength: allIds.length,
+      });
     }
 
     if (action === "sync") {
