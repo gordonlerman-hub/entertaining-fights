@@ -599,6 +599,21 @@ input[type="number"]:focus {
   color: var(--text);
 }
 
+.run-rec-stack-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.run-rec-stack-row .watched-control {
+  margin-bottom: 0;
+}
+
+.run-rec-stack-row.is-watched-rec .run-rec-stack-fighters {
+  text-decoration: none;
+}
+
 .btn-clear-run {
   width: auto;
   margin-top: 0;
@@ -787,8 +802,35 @@ input[type="number"]:focus {
 }
 
 .run-rec-actions-row .btn-youtube-queue,
-.run-rec-actions-row .btn-youtube-open {
+.run-rec-actions-row .btn-youtube-open,
+.run-rec-actions-row .btn-mark-watched {
   flex: 1 1 auto;
+}
+
+.run-rec-actions-row .watched-control {
+  margin-bottom: 0;
+  flex: 0 0 auto;
+}
+
+.btn-mark-watched {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--success);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--success);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-mark-watched:hover {
+  background: color-mix(in srgb, var(--success) 12%, transparent);
 }
 
 .run-rec-actions-row .run-rec-queue-success {
@@ -834,54 +876,6 @@ input[type="number"]:focus {
 .btn-youtube-queue:disabled {
   opacity: 0.65;
   cursor: wait;
-}
-
-.btn-mark-watched {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--touch-min);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid var(--success-border, rgba(72, 187, 120, 0.45));
-  background: rgba(72, 187, 120, 0.12);
-  color: var(--success);
-  font-family: inherit;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.btn-mark-watched:hover {
-  background: var(--success);
-  border-color: var(--success);
-  color: #fff;
-}
-
-.run-rec-marked-watched {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--success);
-}
-
-.run-rec-stack-row-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-  flex: 0 0 auto;
-}
-
-.run-rec-stack-row .watched-control,
-.run-rec-actions-row .watched-control {
-  margin-bottom: 0;
-  min-height: auto;
-  font-size: 0.78rem;
-}
-
-.run-rec-stack-row.is-watched-rec {
-  opacity: 0.65;
 }
 
 .run-rec-stack {
@@ -996,10 +990,6 @@ input[type="number"]:focus {
 
 .watched-control.is-checked {
   color: var(--success);
-}
-
-.run-rec-item.is-watched-rec {
-  opacity: 0.65;
 }
 
 .run-rec-item.is-watched-rec .run-rec-fighters {

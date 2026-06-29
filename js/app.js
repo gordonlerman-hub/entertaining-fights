@@ -65,6 +65,7 @@ let activeRunMinutes = null;
 let runPickIds = new Set();
 let runRefreshSeed = 0;
 let currentRunRec = null;
+let sessionPicks = null;
 let watchedIds = new Set();
 let statFilter = { watched: "unwatched" };
 /** @type {Map<string, { status: string, openUrl?: string, error?: string }>} */
@@ -247,6 +248,32 @@ async function toggleWatched(fightId) {
   } else {
     watchedIds.add(fightId);
   }
+  saveLocalWatchedIds();
+}
+
+async function markFightsWatched(fightIds) {
+  const toMark = fightIds.filter((id) => !isWatched(id));
+  if (toMark.length === 0) return;
+
+  if (isSignedIn()) {
+    const supabase = getSupabase();
+    const user = getCurrentUser();
+    if (!supabase || !user) return;
+
+    const rows = toMark.map((fightId) => ({
+      user_id: user.id,
+      fight_id: fightId,
+    }));
+    const { error } = await supabase.from("watched_fights").upsert(rows, {
+      onConflict: "user_id,fight_id",
+      ignoreDuplicates: true,
+    });
+    if (error) throw error;
+    toMark.forEach((id) => watchedIds.add(id));
+    return;
+  }
+
+  toMark.forEach((id) => watchedIds.add(id));
   saveLocalWatchedIds();
 }
 
@@ -762,8 +789,8 @@ function renderStackRows(fights) {
             </span>
           </span>
           <div class="run-rec-stack-row-actions">
-            ${renderWatchedToggle(fight.id)}
             <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
+            ${renderWatchedToggle(fight.id)}
           </div>
         </div>
       `
@@ -779,16 +806,16 @@ function renderQueueActions(pick) {
   const pickKey = pick.key;
   const state = queueState.get(pickKey);
   const signedIn = isSignedIn();
+  const pickFights = getFightsFromPick(pick);
+  const hasUnwatched = pickFights.some((f) => !isWatched(f.id));
 
   if (state?.status === "success" && state.openUrl) {
-    const fights = getFightsFromPick(pick);
-    const allWatched = fights.every((f) => isWatched(f.id));
     const queuedLabel = state.playlistTitle
       ? `Queued as “${escapeHtml(state.playlistTitle)}”`
       : "Queued — tap to start your workout";
-    const markWatchedBtn = allWatched
-      ? `<span class="run-rec-marked-watched">Marked as watched</span>`
-      : `<button type="button" class="btn-mark-watched touch-target" data-mark-watched-pick-key="${escapeHtml(pickKey)}">Mark as watched</button>`;
+    const markWatchedBtn = hasUnwatched
+      ? `<button type="button" class="btn-mark-watched touch-target" data-mark-watched-pick-key="${escapeHtml(pickKey)}">Mark as watched</button>`
+      : "";
     return `
       <a class="btn-youtube-open" href="${escapeHtml(state.openUrl)}" target="_blank" rel="noopener noreferrer">Open in YouTube ↗</a>
       ${markWatchedBtn}
@@ -839,8 +866,8 @@ function renderRunPick(pick) {
           ${renderRunFightDetails(fight)}
         </div>
         <div class="run-rec-actions-row">
-          ${renderWatchedToggle(fight.id)}
           <a href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch ↗</a>
+          ${renderWatchedToggle(fight.id)}
           ${queueActions}
         </div>
       </div>
@@ -871,17 +898,8 @@ async function markPickAsWatched(pickKey) {
   const pick = currentRunRec.picks.find((p) => p.key === pickKey);
   if (!pick) return;
 
-  const fights = getFightsFromPick(pick);
-  try {
-    for (const fight of fights) {
-      if (!isWatched(fight.id)) {
-        await toggleWatched(fight.id);
-      }
-    }
-    render();
-  } catch (err) {
-    window.alert(`Could not mark fights as watched: ${err.message}`);
-  }
+  const fightIds = getFightsFromPick(pick).map((f) => f.id);
+  await markFightsWatched(fightIds);
 }
 
 async function queuePickOnYouTube(pickKey) {
@@ -933,21 +951,18 @@ async function queuePickOnYouTube(pickKey) {
   renderRunRecommendations();
 }
 
-function renderRunRecommendations() {
-  if (activeRunMinutes == null) {
-    elements.runRecommendations.classList.add("hidden");
-    elements.runRecommendations.innerHTML = "";
-    elements.clearRun.classList.add("hidden");
-    elements.runRefresh.classList.add("hidden");
-    runPickIds = new Set();
-    currentRunRec = null;
-    queueState.clear();
-    return;
-  }
+function syncRunPickIdsFromPicks(picks) {
+  runPickIds = new Set();
+  picks.forEach((pick) => {
+    if (pick.type === "single") {
+      runPickIds.add(pick.fight.id);
+    } else {
+      pick.fights.forEach((f) => runPickIds.add(f.id));
+    }
+  });
+}
 
-  elements.clearRun.classList.remove("hidden");
-  elements.runRefresh.classList.remove("hidden");
-
+function computeRunRecommendations() {
   const basePool = getBaseFilteredFights();
   const pool = poolForRecommendations(basePool);
   const allWatchedInFilter =
@@ -959,15 +974,32 @@ function renderRunRecommendations() {
     ...getRunRecommendations(pool, activeRunMinutes, runRefreshSeed),
     allWatchedInFilter,
   };
+  sessionPicks = currentRunRec.picks;
+  syncRunPickIdsFromPicks(sessionPicks);
+}
 
-  runPickIds = new Set();
-  currentRunRec.picks.forEach((pick) => {
-    if (pick.type === "single") {
-      runPickIds.add(pick.fight.id);
-    } else {
-      pick.fights.forEach((f) => runPickIds.add(f.id));
-    }
-  });
+function renderRunRecommendations({ regenerate = false } = {}) {
+  if (activeRunMinutes == null) {
+    elements.runRecommendations.classList.add("hidden");
+    elements.runRecommendations.innerHTML = "";
+    elements.clearRun.classList.add("hidden");
+    elements.runRefresh.classList.add("hidden");
+    runPickIds = new Set();
+    currentRunRec = null;
+    sessionPicks = null;
+    queueState.clear();
+    return;
+  }
+
+  elements.clearRun.classList.remove("hidden");
+  elements.runRefresh.classList.remove("hidden");
+
+  if (regenerate || !sessionPicks?.length) {
+    computeRunRecommendations();
+  } else {
+    currentRunRec = { ...currentRunRec, picks: sessionPicks };
+    syncRunPickIdsFromPicks(sessionPicks);
+  }
 
   const pickItems = currentRunRec.picks.map(renderRunPick).join("");
 
@@ -1006,7 +1038,11 @@ function renderRunRecommendations() {
 
   elements.runRecommendations.querySelectorAll("[data-mark-watched-pick-key]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      markPickAsWatched(btn.dataset.markWatchedPickKey);
+      markPickAsWatched(btn.dataset.markWatchedPickKey)
+        .then(() => refreshAfterWatchedChange())
+        .catch((err) => {
+          window.alert(`Could not mark as watched: ${err.message}`);
+        });
     });
   });
 
@@ -1057,8 +1093,21 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function render() {
-  renderRunRecommendations();
+function refreshAfterWatchedChange() {
+  renderStats();
+  updateMobileToolbar();
+  if (activeRunMinutes != null) {
+    renderRunRecommendations();
+    elements.resultsCount.classList.add("hidden");
+    elements.grid.classList.add("hidden");
+    elements.emptyState.classList.add("hidden");
+    return;
+  }
+  render();
+}
+
+function render({ regenerateRunPicks = false } = {}) {
+  renderRunRecommendations({ regenerate: regenerateRunPicks });
   renderStats();
   updateMobileToolbar();
   const runMode = activeRunMinutes != null;
@@ -1105,7 +1154,7 @@ function applyRunTime(minutes) {
     setMobilePanel(null);
   }
 
-  render();
+  render({ regenerateRunPicks: true });
 
   if (isMobileLayout() && !elements.runRecommendations.classList.contains("hidden")) {
     elements.runRecommendations.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1116,7 +1165,7 @@ function refreshRunPicks() {
   if (activeRunMinutes == null) return;
   runRefreshSeed += 1;
   queueState.clear();
-  render();
+  render({ regenerateRunPicks: true });
 }
 
 function clearRunTime() {
@@ -1183,7 +1232,7 @@ document.addEventListener("change", (e) => {
 
   const fightId = e.target.dataset.fightId;
   toggleWatched(fightId)
-    .then(() => render())
+    .then(() => refreshAfterWatchedChange())
     .catch((err) => {
       e.target.checked = !e.target.checked;
       window.alert(`Could not update watched status: ${err.message}`);
@@ -1206,7 +1255,7 @@ elements.resetWatched?.addEventListener("click", () => {
   if (!window.confirm(`Clear all ${watchedIds.size} watched fights?`)) return;
 
   clearAllWatched()
-    .then(() => render())
+    .then(() => refreshAfterWatchedChange())
     .catch((err) => window.alert(`Could not clear watched list: ${err.message}`));
 });
 
