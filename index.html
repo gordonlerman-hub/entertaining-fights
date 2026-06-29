@@ -70,12 +70,14 @@
         <label for="run-time">Session time</label>
         <p class="run-time-hint">How long is your cardio session? Then queue a pick to YouTube.</p>
         <div class="run-time-presets" role="group" aria-label="Session time presets">
+          <button type="button" class="run-preset touch-target" data-minutes="15">15 min</button>
           <button type="button" class="run-preset touch-target" data-minutes="20">20 min</button>
-          <button type="button" class="run-preset touch-target" data-minutes="25">25 min</button>
           <button type="button" class="run-preset touch-target" data-minutes="30">30 min</button>
+          <button type="button" class="run-preset touch-target" data-minutes="45">45 min</button>
+          <button type="button" class="run-preset touch-target" data-minutes="60">60 min</button>
         </div>
         <div class="run-time-input-row">
-          <input type="number" id="run-time" class="touch-input" min="5" max="90" step="1" placeholder="Minutes" inputmode="numeric">
+          <input type="number" id="run-time" class="touch-input" min="5" max="90" step="1" placeholder="Custom min" inputmode="numeric" aria-label="Custom session minutes">
           <button type="button" class="btn-run-find touch-target" id="run-find">Find fights</button>
         </div>
         <div class="run-time-actions">
