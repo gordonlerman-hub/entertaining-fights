@@ -1,6 +1,51 @@
 {
   "fights": [
     {
+      "fighter1": "Rafael Fiziev",
+      "fighter2": "Manuel Torres",
+      "event": "UFC Fight Night: Fiziev vs. Torres",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "KO (spinning wheel kick and punches), round 2",
+      "endingCategory": "ko",
+      "duration": "5:18",
+      "durationMinutes": 5.3,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=FNjNSzcEe44",
+      "watchLabel": "Watch on YouTube",
+      "id": "140"
+    },
+    {
+      "fighter1": "Josh Hokit",
+      "fighter2": "Curtis Blaydes",
+      "event": "UFC 327",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "Decision",
+      "endingCategory": "decision",
+      "duration": "15:00",
+      "durationMinutes": 15.0,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=-QANVeelqyc",
+      "watchLabel": "Watch on YouTube",
+      "id": "141"
+    },
+    {
+      "fighter1": "Carlos Ulberg",
+      "fighter2": "Jiří Procházka",
+      "event": "UFC 327",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "KO (punches), round 1",
+      "endingCategory": "ko",
+      "duration": "3:45",
+      "durationMinutes": 3.8,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=M-Z7XyM7muM",
+      "watchLabel": "Watch on YouTube",
+      "id": "142"
+    },
+    {
       "fighter1": "Daniel Dubois",
       "fighter2": "Fabio Wardley",
       "event": "WBO Heavyweight Title",
@@ -2081,7 +2126,7 @@
     }
   ],
   "meta": {
-    "count": 139,
+    "count": 142,
     "note": "Winner intentionally omitted. Duration is in-ring elapsed time only (no corner breaks). Verified against Wikipedia and official fight records where possible."
   }
 }
