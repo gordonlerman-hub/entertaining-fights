@@ -86,11 +86,26 @@ export async function initAuth() {
   await handleYouTubeSession(session);
 }
 
+function oauthRedirectUrl() {
+  return window.location.origin + window.location.pathname;
+}
+
 export async function signInWithGoogle() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: window.location.origin + window.location.pathname,
+      redirectTo: oauthRedirectUrl(),
+    },
+  });
+  if (error) throw error;
+}
+
+/** Request YouTube playlist access (separate from basic sign-in). */
+export async function connectYouTubeGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: oauthRedirectUrl(),
       scopes: "https://www.googleapis.com/auth/youtube.force-ssl",
       queryParams: {
         access_type: "offline",

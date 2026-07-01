@@ -8,11 +8,13 @@ import {
   onAuthChange,
   signInWithGoogle,
   signOut,
+  connectYouTubeGoogle,
 } from "./auth.js";
 import {
   appendToYouTubeQueue,
   clearYouTubeQueue,
   fightsToVideoIds,
+  hasYouTubeCredentials,
   isYouTubeReady,
   onYouTubeReadyChange,
   syncYouTubeQueue,
@@ -301,6 +303,30 @@ async function clearAllWatched() {
 
   watchedIds = new Set();
   clearLocalWatchedIds();
+}
+
+async function ensureYouTubeAccess() {
+  try {
+    if (!isSignedIn()) {
+      await signInWithGoogle();
+      return false;
+    }
+
+    const supabase = getSupabase();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!hasYouTubeCredentials(session)) {
+      await connectYouTubeGoogle();
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    window.alert(`Could not connect Google: ${err.message}`);
+    return false;
+  }
 }
 
 function renderAuthBar() {
@@ -975,14 +1001,7 @@ async function queueFightOnYouTube(fightId) {
 
   if (youtubeStack.fightIds.includes(fightId)) return;
 
-  if (!isSignedIn()) {
-    try {
-      await signInWithGoogle();
-    } catch (err) {
-      window.alert(`Could not start Google sign-in: ${err.message}`);
-    }
-    return;
-  }
+  if (!(await ensureYouTubeAccess())) return;
 
   const { videoIds, missing } = fightsToVideoIds([fight]);
   if (missing.length > 0) {
@@ -1150,14 +1169,7 @@ async function queuePickOnYouTube(pickKey) {
   const pick = currentRunRec.picks.find((p) => p.key === pickKey);
   if (!pick) return;
 
-  if (!isSignedIn()) {
-    try {
-      await signInWithGoogle();
-    } catch (err) {
-      window.alert(`Could not start Google sign-in: ${err.message}`);
-    }
-    return;
-  }
+  if (!(await ensureYouTubeAccess())) return;
 
   const fights = getFightsFromPick(pick);
   const { videoIds, missing } = fightsToVideoIds(fights);
