@@ -352,8 +352,8 @@ function renderAuthBar() {
         </div>
         <button type="button" class="btn-auth btn-sign-out touch-target" id="sign-out">Sign out</button>
       </div>
-      <p class="auth-hint auth-hint--desktop">Watched list synced · queue fights to YouTube from the grid or session picks.</p>
-      <p class="auth-hint auth-hint--mobile">Sync watched · queue fights to YouTube.</p>
+      <p class="auth-hint auth-hint--desktop">Signed in · watched list synced · queue fights to YouTube from the grid or session picks.</p>
+      <p class="auth-hint auth-hint--mobile">Signed in · sync watched · queue fights to YouTube.</p>
     `;
 
     document.getElementById("sign-out")?.addEventListener("click", async () => {
@@ -373,8 +373,8 @@ function renderAuthBar() {
       <span class="btn-google-label btn-google-label--long">Sign in with Google</span>
       <span class="btn-google-label btn-google-label--short">Sign in</span>
     </button>
-    <p class="auth-hint auth-hint--desktop">Sign in with Google to sync watched fights and queue on YouTube.</p>
-    <p class="auth-hint auth-hint--mobile">Sign in to sync watched fights and queue on YouTube.</p>
+    <p class="auth-hint auth-hint--desktop">Sign in with Google to sync watched fights. YouTube access is requested when you queue a fight.</p>
+    <p class="auth-hint auth-hint--mobile">Sign in to sync watched fights. YouTube access comes when you queue.</p>
   `;
 
   document.getElementById("sign-in-google")?.addEventListener("click", async () => {
@@ -1589,9 +1589,6 @@ elements.resetWatched?.addEventListener("click", () => {
 async function bootstrap() {
   try {
     applyUnwatchedPreference(loadPreferUnwatched());
-    await initAuth();
-    renderAuthBar();
-    onYouTubeReadyChange(() => renderAuthBar());
     onAuthChange(async () => {
       renderAuthBar();
       if (!isSignedIn()) {
@@ -1606,6 +1603,9 @@ async function bootstrap() {
       }
       render();
     });
+    onYouTubeReadyChange(() => renderAuthBar());
+    await initAuth();
+    renderAuthBar();
 
     await loadWatchedIds();
     await loadFights();
