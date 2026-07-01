@@ -95,6 +95,9 @@ export async function signInWithGoogle() {
     provider: "google",
     options: {
       redirectTo: oauthRedirectUrl(),
+      queryParams: {
+        prompt: "select_account",
+      },
     },
   });
   if (error) throw error;
@@ -109,7 +112,7 @@ export async function connectYouTubeGoogle() {
       scopes: "https://www.googleapis.com/auth/youtube.force-ssl",
       queryParams: {
         access_type: "offline",
-        prompt: "consent",
+        prompt: "select_account consent",
       },
     },
   });
