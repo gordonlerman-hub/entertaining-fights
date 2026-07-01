@@ -131,7 +131,7 @@ function countActiveFilters() {
   if (elements.sport.value !== "all") count += 1;
   if (elements.duration.value !== "all") count += 1;
   if (elements.ending.value !== "all") count += 1;
-  if (elements.sort.value !== "year-desc") count += 1;
+  if (elements.sort.value !== "featured") count += 1;
   if (statFilter.watched === "watched") count += 1;
   return count;
 }
@@ -416,8 +416,9 @@ async function loadFights() {
   const response = await fetch("data/fights.json");
   if (!response.ok) throw new Error("Could not load fight data");
   const data = await response.json();
-  allFights = data.fights.map((fight) => ({
+  allFights = data.fights.map((fight, index) => ({
     ...fight,
+    featuredOrder: index,
     watchUrl: fight.watchUrl || youtubeSearch(`${fight.event} ${fight.fighter1} ${fight.fighter2} full fight`),
   }));
   buildFighterList();
@@ -597,6 +598,9 @@ function sortFights(fights, sort) {
   sorted.sort((a, b) => {
     let result = 0;
     switch (sort) {
+      case "featured":
+        result = a.featuredOrder - b.featuredOrder;
+        break;
       case "year-asc":
         result = a.year - b.year;
         break;
@@ -1435,7 +1439,7 @@ function resetFilters() {
   elements.sport.value = "all";
   elements.duration.value = "all";
   elements.ending.value = "all";
-  elements.sort.value = "year-desc";
+  elements.sort.value = "featured";
   applyUnwatchedPreference(true);
   clearRunTime();
 }
