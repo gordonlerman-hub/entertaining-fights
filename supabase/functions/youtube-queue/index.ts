@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-const DEFAULT_PLAYLIST_TITLE = "Best Fights Cardio";
+const DEFAULT_PLAYLIST_TITLE = "Entertaining Fights Cardio";
 const MAX_VIDEOS = 10;
 
 const corsHeaders = {
@@ -260,7 +260,7 @@ async function ensurePlaylistId(
   userId: string,
   accessToken: string,
   title = DEFAULT_PLAYLIST_TITLE,
-  description = "Queued from Best Fights cardio watchlist",
+  description = "Queued from Entertaining Fights cardio watchlist",
   refreshToken?: string | null
 ): Promise<string> {
   const { data: existing } = await supabase
@@ -348,7 +348,7 @@ Deno.serve(async (req) => {
         user.id,
         accessToken,
         DEFAULT_PLAYLIST_TITLE,
-        "Queued from Best Fights cardio watchlist",
+        "Queued from Entertaining Fights cardio watchlist",
         refreshToken || null
       );
       return jsonResponse({ playlistId, ready: true });
@@ -368,7 +368,7 @@ Deno.serve(async (req) => {
           accessToken,
           data.playlist_id,
           DEFAULT_PLAYLIST_TITLE,
-          "Queued from Best Fights"
+          "Queued from Entertaining Fights"
         );
       }
 
@@ -389,7 +389,7 @@ Deno.serve(async (req) => {
       const playlistDescription =
         typeof body.playlistDescription === "string" && body.playlistDescription.trim()
           ? body.playlistDescription.trim()
-          : "Queued from Best Fights";
+          : "Queued from Entertaining Fights";
 
       const refreshToken =
         typeof body.googleRefreshToken === "string" ? body.googleRefreshToken.trim() : "";
@@ -447,7 +447,7 @@ Deno.serve(async (req) => {
       const playlistDescription =
         typeof body.playlistDescription === "string" && body.playlistDescription.trim()
           ? body.playlistDescription.trim()
-          : "Queued from Best Fights cardio watchlist";
+          : "Queued from Entertaining Fights cardio watchlist";
 
       const refreshToken =
         typeof body.googleRefreshToken === "string" ? body.googleRefreshToken.trim() : "";

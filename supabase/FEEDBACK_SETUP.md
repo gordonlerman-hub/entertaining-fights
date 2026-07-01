@@ -8,7 +8,7 @@ The feedback page sends email to **gordon.lerman@gmail.com** via [Resend](https:
 2. Create an API key under **API Keys**.
 3. For quick testing, Resend’s `onboarding@resend.dev` sender can deliver to the email you signed up with.
 
-To send from your own domain later, verify a domain in Resend and set `FEEDBACK_FROM_EMAIL` (e.g. `Best Fights <feedback@yourdomain.com>`).
+To send from your own domain later, verify a domain in Resend and set `FEEDBACK_FROM_EMAIL` (e.g. `Entertaining Fights <feedback@yourdomain.com>`).
 
 ## 2. Supabase secrets
 
@@ -20,7 +20,7 @@ Optional overrides:
 
 ```bash
 supabase secrets set FEEDBACK_TO_EMAIL=gordon.lerman@gmail.com
-supabase secrets set FEEDBACK_FROM_EMAIL="Best Fights <onboarding@resend.dev>"
+supabase secrets set FEEDBACK_FROM_EMAIL="Entertaining Fights <onboarding@resend.dev>"
 ```
 
 ## 3. Deploy the edge function

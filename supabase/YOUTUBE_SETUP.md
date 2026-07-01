@@ -39,4 +39,4 @@ Sign out and sign in again so Google grants YouTube playlist access (`prompt: co
 
 1. Set a run time → choose a pick → **Queue on YouTube**
 2. Tap **Open in YouTube ↗**
-3. In [YouTube Studio](https://studio.youtube.com/) → Playlists, confirm **Best Fights Run** exists (private)
+3. In [YouTube Studio](https://studio.youtube.com/) → Playlists, confirm **Entertaining Fights Run** exists (private)

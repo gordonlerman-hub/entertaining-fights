@@ -103,7 +103,7 @@ export function buildRunPlaylistDescription(runMinutes, fights) {
       `${index + 1}. ${fight.fighter1} vs ${fight.fighter2} (${fight.duration})`
   );
   const body = lines.join("\n");
-  const header = `${runMinutes}-minute Best Fights cardio session · ${fights.length} in order\n\n`;
+  const header = `${runMinutes}-minute Entertaining Fights cardio session · ${fights.length} in order\n\n`;
   const full = header + body;
   if (full.length <= YOUTUBE_DESC_MAX) return full;
   return full.slice(0, YOUTUBE_DESC_MAX - 1) + "…";
@@ -128,7 +128,7 @@ export function buildStackPlaylistDescription(fights) {
       `${index + 1}. ${fight.fighter1} vs ${fight.fighter2} (${fight.duration})`
   );
   const body = lines.join("\n");
-  const header = `Best Fights watchlist · ${fights.length} in order\n\n`;
+  const header = `Entertaining Fights watchlist · ${fights.length} in order\n\n`;
   const full = header + body;
   if (full.length <= YOUTUBE_DESC_MAX) return full;
   return full.slice(0, YOUTUBE_DESC_MAX - 1) + "…";

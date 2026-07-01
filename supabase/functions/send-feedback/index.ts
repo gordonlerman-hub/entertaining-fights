@@ -114,9 +114,9 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Feedback email is not configured yet" }, 500);
     }
 
-    const fromEmail = Deno.env.get("FEEDBACK_FROM_EMAIL") || "Best Fights <onboarding@resend.dev>";
+    const fromEmail = Deno.env.get("FEEDBACK_FROM_EMAIL") || "Entertaining Fights <onboarding@resend.dev>";
     const toEmail = Deno.env.get("FEEDBACK_TO_EMAIL") || FEEDBACK_TO_EMAIL;
-    const subject = `[Best Fights] ${typeLabel(type)} from ${email}`;
+    const subject = `[Entertaining Fights] ${typeLabel(type)} from ${email}`;
     const html = `
       <p><strong>Type:</strong> ${escapeHtml(typeLabel(type))}</p>
       <p><strong>From:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
