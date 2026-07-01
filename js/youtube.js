@@ -188,6 +188,14 @@ export function isYouTubeScopeError(message) {
   return /insufficient authentication scopes/i.test(message || "");
 }
 
+export function needsYouTubeConnect(message) {
+  return (
+    isYouTubeScopeError(message) ||
+    /YouTube access not connected/i.test(message || "") ||
+    /Missing YouTube access/i.test(message || "")
+  );
+}
+
 function withGoogleCredentials(body, session) {
   const { accessToken, refreshToken } = getGoogleCredentials(session);
   return {
@@ -197,9 +205,14 @@ function withGoogleCredentials(body, session) {
   };
 }
 
+function withOptionalGoogleCredentials(body, session) {
+  if (!hasYouTubeCredentials(session)) return body;
+  return withGoogleCredentials(body, session);
+}
+
 async function callYouTubeFunction(body, { requireGoogle = true } = {}) {
   const session = await getAuthedSession();
-  const payload = requireGoogle ? withGoogleCredentials(body, session) : body;
+  const payload = requireGoogle ? withOptionalGoogleCredentials(body, session) : body;
 
   const response = await fetch(FUNCTION_URL, {
     method: "POST",

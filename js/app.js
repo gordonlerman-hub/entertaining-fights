@@ -19,6 +19,7 @@ import {
   hasYouTubeCredentials,
   isYouTubeReady,
   isYouTubeScopeError,
+  needsYouTubeConnect,
   onYouTubeReadyChange,
   syncYouTubeQueue,
 } from "./youtube.js";
@@ -315,21 +316,16 @@ async function ensureYouTubeAccess() {
       return false;
     }
 
-    const status = await fetchYouTubeStatus();
-    if (status.ready) return true;
-
     const supabase = getSupabase();
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
-    if (!hasYouTubeCredentials(session)) {
-      await connectYouTubeGoogle();
-      return false;
+    const status = await fetchYouTubeStatus();
+    if (status.ready || hasYouTubeCredentials(session)) {
+      return true;
     }
 
-    // Signed in with basic Google tokens only — request YouTube scope.
-    clearProviderTokens();
     await connectYouTubeGoogle();
     return false;
   } catch (err) {
@@ -1050,7 +1046,7 @@ async function queueFightOnYouTube(fightId) {
     fightQueueState.delete(fightId);
     setYouTubeStackFromFights(nextFights, result);
   } catch (err) {
-    if (isYouTubeScopeError(err.message)) {
+    if (needsYouTubeConnect(err.message)) {
       fightQueueState.delete(fightId);
       try {
         await reconnectYouTubeAfterScopeError();
@@ -1227,7 +1223,7 @@ async function queuePickOnYouTube(pickKey) {
     setYouTubeStackFromFights(fights, result);
     fightQueueState.clear();
   } catch (err) {
-    if (isYouTubeScopeError(err.message)) {
+    if (needsYouTubeConnect(err.message)) {
       queueState.delete(pickKey);
       try {
         await reconnectYouTubeAfterScopeError();
