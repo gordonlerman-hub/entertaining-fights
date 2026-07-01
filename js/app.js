@@ -671,6 +671,10 @@ function fightLabel(fight) {
   return `${fight.fighter1} vs ${fight.fighter2}`;
 }
 
+function runFightLabel(fight) {
+  return `${fightLabel(fight)} (${fight.year})`;
+}
+
 function sportLabel(sport) {
   return SPORT_LABELS[sport] || sport;
 }
@@ -684,10 +688,7 @@ function renderRunFightDetails(fight) {
   const label = sportLabel(fight.sport);
   return `
     <div class="run-rec-fight-details">
-      <div class="run-rec-fight-head">
-        <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(label)}</span>
-        <span class="fight-year">${fight.year}</span>
-      </div>
+      <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(label)}</span>
       <dl class="meta-grid run-rec-meta-grid">
         <div class="meta-item">
           <dt>Duration</dt>
@@ -794,7 +795,7 @@ function pickMixedRunPicks(singlePool, comboPool, count, seed) {
   // Best overall match first
   take(combined.slice(0, Math.min(8, combined.length)), 0);
 
-  // Always include a single when one fits the run time
+  // Include a single-fight pick when any are close to the target time
   if (picks.length < count && singles.length) {
     take(singles.slice(0, Math.min(8, singles.length)), 11);
   }
@@ -841,7 +842,8 @@ function getRunRecommendations(pool, targetMinutes, seed) {
   const goodSingles = singleCandidates.filter((s) => s.rawDiff <= RUN_TOLERANCE_MIN + 3);
   const hasCloseSingles = goodSingles.length > 0;
 
-  const singlePool = hasCloseSingles ? goodSingles : singleCandidates.slice(0, 12);
+  // Only suggest single-fight picks when one is near the target time; otherwise stacks only.
+  const singlePool = hasCloseSingles ? goodSingles : [];
   const comboPool = comboCandidates;
 
   const picks = pickMixedRunPicks(singlePool, comboPool, RUN_PICKS_SHOWN, seed);
@@ -859,10 +861,9 @@ function renderStackRows(fights) {
       (fight, index) => `
         <div class="run-rec-stack-row${isWatched(fight.id) ? " is-watched-rec" : ""}">
           <span class="run-rec-stack-row-main">
-            <span class="run-rec-stack-fighters">${index + 1}. ${escapeHtml(fightLabel(fight))}</span>
+            <span class="run-rec-stack-fighters">${index + 1}. ${escapeHtml(runFightLabel(fight))}</span>
             <span class="run-rec-stack-detail">
               <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(sportLabel(fight.sport))}</span>
-              <span class="fight-year">${fight.year}</span>
               ${escapeHtml(displayEnding(fight))} · ${escapeHtml(fight.duration)}
             </span>
           </span>
@@ -1103,7 +1104,7 @@ function renderRunPick(pick) {
     return `
       <div class="run-rec-item${isWatched(fight.id) ? " is-watched-rec" : ""}" data-pick-key="${escapeHtml(pick.key)}">
         <div class="run-rec-item-main">
-          <div class="run-rec-fighters">${escapeHtml(fightLabel(fight))}</div>
+          <div class="run-rec-fighters">${escapeHtml(runFightLabel(fight))}</div>
           <div class="run-rec-meta">${escapeHtml(offBy)}</div>
           ${renderRunFightDetails(fight)}
         </div>

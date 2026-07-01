@@ -736,6 +736,12 @@ input[type="number"]:focus {
   color: var(--text-muted);
 }
 
+.run-rec-fighters .fight-year,
+.run-rec-stack-fighters .fight-year {
+  font-weight: 500;
+  margin-left: 0.15rem;
+}
+
 .run-rec-fight-details {
   margin-top: 0.65rem;
 }
