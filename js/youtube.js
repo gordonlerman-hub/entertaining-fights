@@ -135,11 +135,13 @@ export function buildStackPlaylistDescription(fights) {
 }
 
 export function persistProviderTokens(session) {
-  if (session?.provider_token) {
+  // Basic Google sign-in may include a provider_token without YouTube scope.
+  // Only persist tokens from the YouTube consent flow (offline refresh token).
+  if (!session?.provider_refresh_token) return;
+
+  localStorage.setItem(YT_REFRESH_KEY, session.provider_refresh_token);
+  if (session.provider_token) {
     localStorage.setItem(YT_ACCESS_KEY, session.provider_token);
-  }
-  if (session?.provider_refresh_token) {
-    localStorage.setItem(YT_REFRESH_KEY, session.provider_refresh_token);
   }
 }
 
@@ -162,12 +164,12 @@ async function getAuthedSession() {
 }
 
 export function getGoogleCredentials(session) {
-  const accessToken = session?.provider_token || localStorage.getItem(YT_ACCESS_KEY) || null;
   const refreshToken =
     session?.provider_refresh_token || localStorage.getItem(YT_REFRESH_KEY) || null;
+  const accessToken = session?.provider_token || localStorage.getItem(YT_ACCESS_KEY) || null;
 
-  if (!accessToken && !refreshToken) {
-    throw new Error("YouTube access expired — sign out and sign in with Google again");
+  if (!refreshToken) {
+    throw new Error("YouTube access not connected — queue a fight to grant playlist access");
   }
 
   return { accessToken, refreshToken };
@@ -180,6 +182,10 @@ export function hasYouTubeCredentials(session) {
   } catch {
     return false;
   }
+}
+
+export function isYouTubeScopeError(message) {
+  return /insufficient authentication scopes/i.test(message || "");
 }
 
 function withGoogleCredentials(body, session) {

@@ -12,10 +12,13 @@ import {
 } from "./auth.js";
 import {
   appendToYouTubeQueue,
+  clearProviderTokens,
   clearYouTubeQueue,
+  fetchYouTubeStatus,
   fightsToVideoIds,
   hasYouTubeCredentials,
   isYouTubeReady,
+  isYouTubeScopeError,
   onYouTubeReadyChange,
   syncYouTubeQueue,
 } from "./youtube.js";
@@ -312,6 +315,9 @@ async function ensureYouTubeAccess() {
       return false;
     }
 
+    const status = await fetchYouTubeStatus();
+    if (status.ready) return true;
+
     const supabase = getSupabase();
     const {
       data: { session },
@@ -322,11 +328,19 @@ async function ensureYouTubeAccess() {
       return false;
     }
 
-    return true;
+    // Signed in with basic Google tokens only — request YouTube scope.
+    clearProviderTokens();
+    await connectYouTubeGoogle();
+    return false;
   } catch (err) {
     window.alert(`Could not connect Google: ${err.message}`);
     return false;
   }
+}
+
+async function reconnectYouTubeAfterScopeError() {
+  clearProviderTokens();
+  await connectYouTubeGoogle();
 }
 
 function renderAuthBar() {
@@ -1036,6 +1050,20 @@ async function queueFightOnYouTube(fightId) {
     fightQueueState.delete(fightId);
     setYouTubeStackFromFights(nextFights, result);
   } catch (err) {
+    if (isYouTubeScopeError(err.message)) {
+      fightQueueState.delete(fightId);
+      try {
+        await reconnectYouTubeAfterScopeError();
+      } catch (connectErr) {
+        fightQueueState.set(fightId, {
+          status: "error",
+          error: connectErr.message || "Could not connect YouTube — try again.",
+        });
+      }
+      render();
+      return;
+    }
+
     fightQueueState.set(fightId, {
       status: "error",
       error: err.message || "Could not queue on YouTube — try again.",
@@ -1199,6 +1227,20 @@ async function queuePickOnYouTube(pickKey) {
     setYouTubeStackFromFights(fights, result);
     fightQueueState.clear();
   } catch (err) {
+    if (isYouTubeScopeError(err.message)) {
+      queueState.delete(pickKey);
+      try {
+        await reconnectYouTubeAfterScopeError();
+      } catch (connectErr) {
+        queueState.set(pickKey, {
+          status: "error",
+          error: connectErr.message || "Could not connect YouTube — try again.",
+        });
+      }
+      renderRunRecommendations();
+      return;
+    }
+
     queueState.set(pickKey, {
       status: "error",
       error: err.message || "Could not queue on YouTube — try again.",
