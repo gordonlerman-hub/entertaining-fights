@@ -740,8 +740,10 @@ input[type="number"]:focus {
   margin-top: 0.65rem;
 }
 
-.run-rec-fight-details .sport-badge {
-  display: inline-block;
+.run-rec-fight-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 0.5rem;
 }
 

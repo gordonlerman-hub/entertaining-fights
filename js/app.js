@@ -675,11 +675,19 @@ function sportLabel(sport) {
   return SPORT_LABELS[sport] || sport;
 }
 
+function displayEnding(fight) {
+  if (fight.endingCategory === "draw") return "Decision";
+  return fight.ending;
+}
+
 function renderRunFightDetails(fight) {
   const label = sportLabel(fight.sport);
   return `
     <div class="run-rec-fight-details">
-      <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(label)}</span>
+      <div class="run-rec-fight-head">
+        <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(label)}</span>
+        <span class="fight-year">${fight.year}</span>
+      </div>
       <dl class="meta-grid run-rec-meta-grid">
         <div class="meta-item">
           <dt>Duration</dt>
@@ -687,7 +695,7 @@ function renderRunFightDetails(fight) {
         </div>
         <div class="meta-item">
           <dt>How it ends</dt>
-          <dd>${escapeHtml(fight.ending)}</dd>
+          <dd>${escapeHtml(displayEnding(fight))}</dd>
         </div>
       </dl>
     </div>
@@ -854,7 +862,8 @@ function renderStackRows(fights) {
             <span class="run-rec-stack-fighters">${index + 1}. ${escapeHtml(fightLabel(fight))}</span>
             <span class="run-rec-stack-detail">
               <span class="sport-badge ${sportClass(fight.sport)}">${escapeHtml(sportLabel(fight.sport))}</span>
-              ${escapeHtml(fight.ending)} · ${escapeHtml(fight.duration)}
+              <span class="fight-year">${fight.year}</span>
+              ${escapeHtml(displayEnding(fight))} · ${escapeHtml(fight.duration)}
             </span>
           </span>
           <div class="run-rec-stack-row-actions">
@@ -1312,7 +1321,7 @@ function renderFightCard(fight) {
         </div>
         <div class="meta-item">
           <dt>How it ends</dt>
-          <dd>${escapeHtml(fight.ending)}</dd>
+          <dd>${escapeHtml(displayEnding(fight))}</dd>
         </div>
       </dl>
       <a class="watch-link" href="${escapeHtml(fight.watchUrl)}" target="_blank" rel="noopener noreferrer">

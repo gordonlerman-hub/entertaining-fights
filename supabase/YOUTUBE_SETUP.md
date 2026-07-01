@@ -12,18 +12,23 @@ Use the **same OAuth client** configured for Supabase Google sign-in.
    `https://www.googleapis.com/auth/youtube.force-ssl`
 4. If the app is in **Testing**, add your Google account as a test user.
 
-No edge-function secrets are required — the app uses your Google access token from sign-in.
-
 ## Supabase
 
 1. Apply migrations (includes `user_youtube` table):
    ```bash
    supabase db push
    ```
-2. Deploy the edge function:
+2. Set edge function secrets (same Google OAuth client as Supabase sign-in):
+   ```bash
+   supabase secrets set GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+   supabase secrets set GOOGLE_CLIENT_SECRET=your-client-secret
+   ```
+3. Deploy the edge function:
    ```bash
    supabase functions deploy youtube-queue
    ```
+
+The edge function stores each user's Google refresh token so queueing still works after the Supabase session refreshes and `provider_token` disappears from the browser session.
 
 ## Re-sign in
 

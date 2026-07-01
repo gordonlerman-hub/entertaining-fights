@@ -2,6 +2,8 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config.js";
 import { getSupabase } from "./auth.js";
 
 const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/youtube-queue`;
+const YT_ACCESS_KEY = "bf_youtube_provider_token";
+const YT_REFRESH_KEY = "bf_youtube_provider_refresh_token";
 
 let youtubeReady = false;
 const readyListeners = new Set();
@@ -132,6 +134,20 @@ export function buildStackPlaylistDescription(fights) {
   return full.slice(0, YOUTUBE_DESC_MAX - 1) + "…";
 }
 
+export function persistProviderTokens(session) {
+  if (session?.provider_token) {
+    localStorage.setItem(YT_ACCESS_KEY, session.provider_token);
+  }
+  if (session?.provider_refresh_token) {
+    localStorage.setItem(YT_REFRESH_KEY, session.provider_refresh_token);
+  }
+}
+
+export function clearProviderTokens() {
+  localStorage.removeItem(YT_ACCESS_KEY);
+  localStorage.removeItem(YT_REFRESH_KEY);
+}
+
 async function getAuthedSession() {
   const supabase = getSupabase();
   if (!supabase) throw new Error("Auth is not initialized");
@@ -145,16 +161,39 @@ async function getAuthedSession() {
   return session;
 }
 
-function getGoogleAccessToken(session) {
-  const token = session?.provider_token;
-  if (!token) {
+export function getGoogleCredentials(session) {
+  const accessToken = session?.provider_token || localStorage.getItem(YT_ACCESS_KEY) || null;
+  const refreshToken =
+    session?.provider_refresh_token || localStorage.getItem(YT_REFRESH_KEY) || null;
+
+  if (!accessToken && !refreshToken) {
     throw new Error("YouTube access expired — sign out and sign in with Google again");
   }
-  return token;
+
+  return { accessToken, refreshToken };
 }
 
-async function callYouTubeFunction(body) {
+export function hasYouTubeCredentials(session) {
+  try {
+    getGoogleCredentials(session);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function withGoogleCredentials(body, session) {
+  const { accessToken, refreshToken } = getGoogleCredentials(session);
+  return {
+    ...body,
+    ...(accessToken ? { googleAccessToken: accessToken } : {}),
+    ...(refreshToken ? { googleRefreshToken: refreshToken } : {}),
+  };
+}
+
+async function callYouTubeFunction(body, { requireGoogle = true } = {}) {
   const session = await getAuthedSession();
+  const payload = requireGoogle ? withGoogleCredentials(body, session) : body;
 
   const response = await fetch(FUNCTION_URL, {
     method: "POST",
@@ -163,7 +202,7 @@ async function callYouTubeFunction(body) {
       apikey: SUPABASE_ANON_KEY,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
 
   const data = await response.json().catch(() => ({}));
@@ -175,7 +214,7 @@ async function callYouTubeFunction(body) {
 
 export async function fetchYouTubeStatus() {
   try {
-    const data = await callYouTubeFunction({ action: "status" });
+    const data = await callYouTubeFunction({ action: "status" }, { requireGoogle: false });
     setYouTubeReady(Boolean(data.ready));
     return data;
   } catch {
@@ -185,22 +224,19 @@ export async function fetchYouTubeStatus() {
 }
 
 export async function registerYouTube(session) {
-  if (!session?.provider_token) return fetchYouTubeStatus();
+  if (!hasYouTubeCredentials(session)) return fetchYouTubeStatus();
 
   const data = await callYouTubeFunction({
     action: "register",
-    googleAccessToken: getGoogleAccessToken(session),
   });
   setYouTubeReady(Boolean(data.ready));
   return data;
 }
 
 export async function syncYouTubeQueue(videoIds, { runMinutes, fights } = {}) {
-  const session = await getAuthedSession();
   const payload = {
     action: "sync",
     videoIds,
-    googleAccessToken: getGoogleAccessToken(session),
   };
 
   if (runMinutes != null && Array.isArray(fights) && fights.length > 0) {
@@ -217,11 +253,9 @@ export async function syncYouTubeQueue(videoIds, { runMinutes, fights } = {}) {
 }
 
 export async function appendToYouTubeQueue(videoIds, { fights } = {}) {
-  const session = await getAuthedSession();
   const payload = {
     action: "append",
     videoIds,
-    googleAccessToken: getGoogleAccessToken(session),
   };
 
   if (Array.isArray(fights) && fights.length > 0) {
@@ -235,10 +269,8 @@ export async function appendToYouTubeQueue(videoIds, { fights } = {}) {
 }
 
 export async function clearYouTubeQueue() {
-  const session = await getAuthedSession();
   const data = await callYouTubeFunction({
     action: "clear",
-    googleAccessToken: getGoogleAccessToken(session),
   });
   return data;
 }

@@ -17,12 +17,85 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
-function requireGoogleAccessToken(body: Record<string, unknown>): string {
-  const token = body.googleAccessToken;
-  if (typeof token !== "string" || !token.trim()) {
-    throw new Error("Missing YouTube access — sign out and sign in with Google again");
+
+async function refreshGoogleAccessToken(refreshToken: string): Promise<string> {
+  const clientId = Deno.env.get("GOOGLE_CLIENT_ID");
+  const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET");
+  if (!clientId || !clientSecret) {
+    throw new Error(
+      "YouTube token refresh is not configured — sign out and sign in with Google again"
+    );
   }
-  return token;
+
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(
+      data.error_description ||
+        data.error ||
+        "Could not refresh YouTube access — sign out and sign in with Google again"
+    );
+  }
+  if (typeof data.access_token !== "string" || !data.access_token.trim()) {
+    throw new Error("Could not refresh YouTube access — sign out and sign in with Google again");
+  }
+  return data.access_token;
+}
+
+async function storeRefreshToken(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  refreshToken: string
+) {
+  const { error } = await supabase.from("user_youtube").upsert(
+    {
+      user_id: userId,
+      refresh_token_encrypted: refreshToken,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+  if (error) throw new Error(error.message);
+}
+
+async function resolveGoogleAccessToken(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  body: Record<string, unknown>
+): Promise<string> {
+  const inlineAccess =
+    typeof body.googleAccessToken === "string" ? body.googleAccessToken.trim() : "";
+  if (inlineAccess) return inlineAccess;
+
+  const inlineRefresh =
+    typeof body.googleRefreshToken === "string" ? body.googleRefreshToken.trim() : "";
+  if (inlineRefresh) {
+    const accessToken = await refreshGoogleAccessToken(inlineRefresh);
+    await storeRefreshToken(supabase, userId, inlineRefresh);
+    return accessToken;
+  }
+
+  const { data } = await supabase
+    .from("user_youtube")
+    .select("refresh_token_encrypted")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const storedRefresh = data?.refresh_token_encrypted;
+  if (typeof storedRefresh === "string" && storedRefresh.trim()) {
+    return await refreshGoogleAccessToken(storedRefresh.trim());
+  }
+
+  throw new Error("Missing YouTube access — sign out and sign in with Google again");
 }
 
 async function youtubeFetch(
@@ -187,7 +260,8 @@ async function ensurePlaylistId(
   userId: string,
   accessToken: string,
   title = DEFAULT_PLAYLIST_TITLE,
-  description = "Queued from Best Fights cardio watchlist"
+  description = "Queued from Best Fights cardio watchlist",
+  refreshToken?: string | null
 ): Promise<string> {
   const { data: existing } = await supabase
     .from("user_youtube")
@@ -202,6 +276,7 @@ async function ensurePlaylistId(
       {
         user_id: userId,
         playlist_id: playlistId,
+        ...(refreshToken ? { refresh_token_encrypted: refreshToken } : {}),
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }
@@ -262,13 +337,25 @@ Deno.serve(async (req) => {
     }
 
     if (action === "register") {
-      const accessToken = requireGoogleAccessToken(body);
-      const playlistId = await ensurePlaylistId(supabase, user.id, accessToken);
+      const accessToken = await resolveGoogleAccessToken(supabase, user.id, body);
+      const refreshToken =
+        typeof body.googleRefreshToken === "string" ? body.googleRefreshToken.trim() : "";
+      if (refreshToken) {
+        await storeRefreshToken(supabase, user.id, refreshToken);
+      }
+      const playlistId = await ensurePlaylistId(
+        supabase,
+        user.id,
+        accessToken,
+        DEFAULT_PLAYLIST_TITLE,
+        "Queued from Best Fights cardio watchlist",
+        refreshToken || null
+      );
       return jsonResponse({ playlistId, ready: true });
     }
 
     if (action === "clear") {
-      const accessToken = requireGoogleAccessToken(body);
+      const accessToken = await resolveGoogleAccessToken(supabase, user.id, body);
       const { data } = await supabase
         .from("user_youtube")
         .select("playlist_id")
@@ -294,7 +381,7 @@ Deno.serve(async (req) => {
         return jsonResponse({ error: "No videos to queue" }, 400);
       }
 
-      const accessToken = requireGoogleAccessToken(body);
+      const accessToken = await resolveGoogleAccessToken(supabase, user.id, body);
       const playlistTitle =
         typeof body.playlistTitle === "string" && body.playlistTitle.trim()
           ? body.playlistTitle.trim()
@@ -304,12 +391,19 @@ Deno.serve(async (req) => {
           ? body.playlistDescription.trim()
           : "Queued from Best Fights";
 
+      const refreshToken =
+        typeof body.googleRefreshToken === "string" ? body.googleRefreshToken.trim() : "";
+      if (refreshToken) {
+        await storeRefreshToken(supabase, user.id, refreshToken);
+      }
+
       const playlistId = await ensurePlaylistId(
         supabase,
         user.id,
         accessToken,
         playlistTitle,
-        playlistDescription
+        playlistDescription,
+        refreshToken || null
       );
 
       const existingIds = await getPlaylistVideoIds(accessToken, playlistId);
@@ -345,7 +439,7 @@ Deno.serve(async (req) => {
         return jsonResponse({ error: `Maximum ${MAX_VIDEOS} videos per queue` }, 400);
       }
 
-      const accessToken = requireGoogleAccessToken(body);
+      const accessToken = await resolveGoogleAccessToken(supabase, user.id, body);
       const playlistTitle =
         typeof body.playlistTitle === "string" && body.playlistTitle.trim()
           ? body.playlistTitle.trim()
@@ -355,12 +449,19 @@ Deno.serve(async (req) => {
           ? body.playlistDescription.trim()
           : "Queued from Best Fights cardio watchlist";
 
+      const refreshToken =
+        typeof body.googleRefreshToken === "string" ? body.googleRefreshToken.trim() : "";
+      if (refreshToken) {
+        await storeRefreshToken(supabase, user.id, refreshToken);
+      }
+
       const playlistId = await ensurePlaylistId(
         supabase,
         user.id,
         accessToken,
         playlistTitle,
-        playlistDescription
+        playlistDescription,
+        refreshToken || null
       );
 
       await updatePlaylist(accessToken, playlistId, playlistTitle, playlistDescription);

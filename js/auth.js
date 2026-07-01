@@ -28,14 +28,24 @@ function notifyAuthChange() {
 }
 
 async function handleYouTubeSession(session) {
-  const { fetchYouTubeStatus, registerYouTube, setYouTubeReady } = await import("./youtube.js?v=202606296");
+  const {
+    clearProviderTokens,
+    fetchYouTubeStatus,
+    persistProviderTokens,
+    registerYouTube,
+    setYouTubeReady,
+    hasYouTubeCredentials,
+  } = await import("./youtube.js?v=202607011");
 
   if (!session?.user) {
+    clearProviderTokens();
     setYouTubeReady(false);
     return;
   }
 
-  if (session.provider_token || session.provider_refresh_token) {
+  persistProviderTokens(session);
+
+  if (hasYouTubeCredentials(session)) {
     if (!registerInFlight) {
       registerInFlight = registerYouTube(session)
         .catch((err) => {
@@ -92,6 +102,8 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
+  const { clearProviderTokens } = await import("./youtube.js?v=202607011");
+  clearProviderTokens();
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
