@@ -8,7 +8,7 @@ import {
   onAuthChange,
   signInWithGoogle,
   signOut,
-} from "./auth.js?v=202606296";
+} from "./auth.js";
 import {
   appendToYouTubeQueue,
   clearYouTubeQueue,
@@ -16,7 +16,7 @@ import {
   isYouTubeReady,
   onYouTubeReadyChange,
   syncYouTubeQueue,
-} from "./youtube.js?v=202606296";
+} from "./youtube.js";
 
 const SPORT_LABELS = {
   boxing: "Boxing",

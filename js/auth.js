@@ -35,7 +35,7 @@ async function handleYouTubeSession(session) {
     registerYouTube,
     setYouTubeReady,
     hasYouTubeCredentials,
-  } = await import("./youtube.js?v=202607011");
+  } = await import("./youtube.js");
 
   if (!session?.user) {
     clearProviderTokens();
@@ -102,7 +102,7 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
-  const { clearProviderTokens } = await import("./youtube.js?v=202607011");
+  const { clearProviderTokens } = await import("./youtube.js");
   clearProviderTokens();
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
