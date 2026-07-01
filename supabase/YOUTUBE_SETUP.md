@@ -10,7 +10,8 @@ Use the **same OAuth client** configured for Supabase Google sign-in.
 2. **APIs & Services → Library** → enable **YouTube Data API v3**.
 3. **OAuth consent screen** → add scope:
    `https://www.googleapis.com/auth/youtube.force-ssl`
-4. If the app is in **Testing**, add your Google account as a test user.
+4. Set **Application home page** to `https://entertainingfights.com/` and **Privacy policy** to `https://entertainingfights.com/privacy.html`. Add `entertainingfights.com` under **Authorized domains**.
+5. If the app is in **Testing**, add your Google account as a test user.
 
 ## Supabase
 

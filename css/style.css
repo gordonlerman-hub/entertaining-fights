@@ -1412,6 +1412,32 @@ select:focus {
   font-weight: 600;
 }
 
+.content-page h3 {
+  margin: 2rem 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.content-page ul {
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+  line-height: 1.65;
+}
+
+.content-page li {
+  margin-bottom: 0.65rem;
+}
+
+.content-page a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .content-signoff {
   margin-top: 1.75rem !important;
   color: var(--text-muted);
