@@ -66,6 +66,16 @@ def find_ytdlp() -> str | None:
     return None
 
 
+def parse_player_response(html: str) -> dict:
+    match = re.search(r"ytInitialPlayerResponse\s*=\s*(\{.+?\});", html)
+    if not match:
+        return {}
+    try:
+        return json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return {}
+
+
 def fetch_duration_ytdlp(video_id: str) -> int:
     ytdlp = find_ytdlp()
     if not ytdlp:
@@ -112,14 +122,33 @@ def fetch_video_meta(video_id: str) -> dict:
     channel = oembed.get("author_name", "")
     duration = 0
     categories: list[str] = []
+    unavailable = False
+    unavailable_reason = ""
 
     try:
         html = fetch_text(watch_url)
-        length_match = re.search(r'"lengthSeconds"\s*:\s*"(\d+)"', html)
-        if not length_match:
-            length_match = re.search(r'"lengthSeconds"\s*:\s*(\d+)', html)
-        if length_match:
-            duration = int(length_match.group(1))
+        player = parse_player_response(html)
+        video_details = player.get("videoDetails") or {}
+        playability = player.get("playabilityStatus") or {}
+
+        if video_details.get("title"):
+            title = video_details["title"]
+        if video_details.get("author"):
+            channel = video_details["author"]
+        if video_details.get("lengthSeconds"):
+            duration = int(video_details["lengthSeconds"])
+
+        status = playability.get("status")
+        if status == "UNPLAYABLE":
+            unavailable = True
+            unavailable_reason = playability.get("reason", "Video unavailable")
+
+        if duration == 0:
+            length_match = re.search(r'"lengthSeconds"\s*:\s*"(\d+)"', html)
+            if not length_match:
+                length_match = re.search(r'"lengthSeconds"\s*:\s*(\d+)', html)
+            if length_match:
+                duration = int(length_match.group(1))
         if duration == 0:
             duration = fetch_duration_ytdlp(video_id)
         if '"Gaming"' in html or '"gaming"' in html:
@@ -136,18 +165,22 @@ def fetch_video_meta(video_id: str) -> dict:
             "channel": channel,
             "duration": duration,
             "categories": categories,
+            "unavailable": unavailable,
+            "unavailableReason": unavailable_reason,
         }
 
     if duration == 0:
         duration = fetch_duration_ytdlp(video_id)
 
     return {
-        "ok": True,
-        "error": "",
+        "ok": not unavailable,
+        "error": unavailable_reason if unavailable else "",
         "title": title,
         "channel": channel,
         "duration": duration,
         "categories": categories,
+        "unavailable": unavailable,
+        "unavailableReason": unavailable_reason,
     }
 
 
@@ -185,7 +218,9 @@ def audit_fight(fight: dict) -> dict | None:
 
     meta = fetch_video_meta(video_id)
     issues: list[str] = []
-    if not meta["ok"]:
+    if meta.get("unavailable"):
+        issues.append("UNAVAILABLE")
+    elif not meta["ok"]:
         issues.append(f"FETCH_ERROR: {meta['error']}")
 
     title = meta["title"]
