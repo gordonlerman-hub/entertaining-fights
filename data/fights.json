@@ -4,7 +4,7 @@
       "id": "084",
       "fighter1": "Gokhan Saki",
       "fighter2": "Daniel Ghita",
-      "event": "Glory 15",
+      "event": "Glory 6",
       "year": 2013,
       "sport": "kickboxing",
       "ending": "KO, round 2",
@@ -117,7 +117,7 @@
       "duration": "0:05",
       "durationMinutes": 0.1,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=vZAgr33aBIg",
+      "watchUrl": "https://www.youtube.com/watch?v=cUXVXvRUllQ",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -280,7 +280,7 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=9jpBlAiA3BM",
+      "watchUrl": "https://www.youtube.com/watch?v=aWWqoujOXNE",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -331,13 +331,13 @@
     {
       "fighter1": "Dustin Poirier",
       "fighter2": "Eddie Alvarez",
-      "event": "UFC on Fox 29",
+      "event": "UFC on Fox 30",
       "year": 2018,
       "sport": "mma",
-      "ending": "TKO, round 4",
+      "ending": "TKO, round 2",
       "endingCategory": "ko",
-      "duration": "18:48",
-      "durationMinutes": 18.8,
+      "duration": "9:05",
+      "durationMinutes": 9.1,
       "scheduledRounds": 5,
       "watchUrl": "https://www.youtube.com/watch?v=eEE_b0CDTFo",
       "watchLabel": "Watch on YouTube",
@@ -430,7 +430,7 @@
       "duration": "20:00",
       "durationMinutes": 20.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=AgoyvEWTRfA",
+      "watchUrl": "https://www.youtube.com/watch?v=9Ki7L8SSAmM",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -667,7 +667,7 @@
       "duration": "3:34",
       "durationMinutes": 3.6,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=yDRQ5MtX5y8",
+      "watchUrl": "https://www.youtube.com/watch?v=YZm8pRVtNP4",
       "watchLabel": "Watch on YouTube",
       "id": "020"
     },
@@ -833,7 +833,7 @@
       "duration": "15:00",
       "durationMinutes": 15.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=crZoilI9sXI",
+      "watchUrl": "https://www.youtube.com/watch?v=jMHf-wmVTtY",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -847,8 +847,6 @@
       "duration": "15:00",
       "durationMinutes": 15.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=dBB0mXNpWD4",
-      "watchLabel": "Watch on YouTube",
       "id": "026"
     },
     {
@@ -1295,7 +1293,7 @@
       "duration": "29:18",
       "durationMinutes": 29.3,
       "scheduledRounds": 12,
-      "watchUrl": "https://www.youtube.com/watch?v=7p2S4XmQQnk",
+      "watchUrl": "https://www.youtube.com/watch?v=e3W0DMczmZc",
       "watchLabel": "Watch on YouTube",
       "id": "040"
     },
