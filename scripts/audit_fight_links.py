@@ -22,7 +22,7 @@ REQUEST_DELAY_SEC = 0.35
 
 BAD = re.compile(
     r"(?i)(ea sports|video game|gameplay|ufc \d+ game|ps[45]|xbox|nintendo|"
-    r"simulation|virtual|esports|undisputed 3|ufc 4)"
+    r"simulation|virtual|esports|undisputed 3|ufc 4|alter egos)"
 )
 CLIP = re.compile(
     r"(?i)(highlights?|best moments|compilation|montage|extended clip|"
