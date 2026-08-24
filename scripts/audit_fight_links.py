@@ -6,7 +6,9 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import ssl
+import subprocess
 import sys
 import time
 import urllib.error
@@ -22,13 +24,16 @@ REQUEST_DELAY_SEC = 0.35
 
 BAD = re.compile(
     r"(?i)(ea sports|video game|gameplay|ufc \d+ game|ps[45]|xbox|nintendo|"
-    r"simulation|virtual|esports|undisputed 3|ufc 4)"
+    r"simulation|virtual|esports|undisputed 3|ufc 4|alter egos)"
 )
 CLIP = re.compile(
     r"(?i)(highlights?|best moments|compilation|montage|extended clip|"
-    r"fight clip|knockout only|all knockouts|recap|preview|trailer)"
+    r"fight clip|knockout only|all knockouts|recap|preview|trailer|savage ko)"
 )
-GOOD = re.compile(r"(?i)(full fight|free fight|complete fight|entire fight|полный бой)")
+GOOD = re.compile(
+    r"(?i)(full fight|free fight|complete fight|entire fight|полный бой|"
+    r"pelea completa|fight watch)"
+)
 
 
 def fetch_json(url: str, timeout: int = 25) -> dict:
@@ -48,6 +53,51 @@ def extract_video_id(url: str) -> str | None:
         return None
     match = re.search(r"(?:v=|/embed/|youtu\.be/)([a-zA-Z0-9_-]{11})", url)
     return match.group(1) if match else None
+
+
+def find_ytdlp() -> str | None:
+    for candidate in (
+        shutil.which("yt-dlp"),
+        shutil.which("youtube-dl"),
+        Path.home() / ".local" / "bin" / "yt-dlp",
+    ):
+        if candidate and Path(candidate).is_file():
+            return str(candidate)
+    return None
+
+
+def parse_player_response(html: str) -> dict:
+    match = re.search(r"ytInitialPlayerResponse\s*=\s*(\{.+?\});", html)
+    if not match:
+        return {}
+    try:
+        return json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return {}
+
+
+def fetch_duration_ytdlp(video_id: str) -> int:
+    ytdlp = find_ytdlp()
+    if not ytdlp:
+        return 0
+    watch_url = f"https://www.youtube.com/watch?v={video_id}"
+    cmd = [ytdlp, "--js-runtimes", "node", "--no-download", "--print", "duration"]
+    try:
+        result = subprocess.run(
+            cmd + [watch_url],
+            capture_output=True,
+            text=True,
+            timeout=45,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return 0
+    if result.returncode != 0:
+        return 0
+    try:
+        return int(float(result.stdout.strip()))
+    except ValueError:
+        return 0
 
 
 def fetch_video_meta(video_id: str) -> dict:
@@ -72,36 +122,65 @@ def fetch_video_meta(video_id: str) -> dict:
     channel = oembed.get("author_name", "")
     duration = 0
     categories: list[str] = []
+    unavailable = False
+    unavailable_reason = ""
 
     try:
         html = fetch_text(watch_url)
-        length_match = re.search(r'"lengthSeconds"\s*:\s*"(\d+)"', html)
-        if not length_match:
-            length_match = re.search(r'"lengthSeconds"\s*:\s*(\d+)', html)
-        if length_match:
-            duration = int(length_match.group(1))
+        player = parse_player_response(html)
+        video_details = player.get("videoDetails") or {}
+        playability = player.get("playabilityStatus") or {}
+
+        if video_details.get("title"):
+            title = video_details["title"]
+        if video_details.get("author"):
+            channel = video_details["author"]
+        if video_details.get("lengthSeconds"):
+            duration = int(video_details["lengthSeconds"])
+
+        status = playability.get("status")
+        if status == "UNPLAYABLE":
+            unavailable = True
+            unavailable_reason = playability.get("reason", "Video unavailable")
+
+        if duration == 0:
+            length_match = re.search(r'"lengthSeconds"\s*:\s*"(\d+)"', html)
+            if not length_match:
+                length_match = re.search(r'"lengthSeconds"\s*:\s*(\d+)', html)
+            if length_match:
+                duration = int(length_match.group(1))
+        if duration == 0:
+            duration = fetch_duration_ytdlp(video_id)
         if '"Gaming"' in html or '"gaming"' in html:
             categories.append("Gaming")
         cat_match = re.search(r'"category"\s*:\s*"([^"]+)"', html)
         if cat_match and cat_match.group(1) not in categories:
             categories.append(cat_match.group(1))
     except Exception as err:  # noqa: BLE001 — keep audit running for other fights
+        duration = fetch_duration_ytdlp(video_id)
         return {
-            "ok": False,
-            "error": f"watch page: {err}",
+            "ok": duration > 0 or bool(title),
+            "error": "" if duration > 0 or title else f"watch page: {err}",
             "title": title,
             "channel": channel,
             "duration": duration,
             "categories": categories,
+            "unavailable": unavailable,
+            "unavailableReason": unavailable_reason,
         }
 
+    if duration == 0:
+        duration = fetch_duration_ytdlp(video_id)
+
     return {
-        "ok": True,
-        "error": "",
+        "ok": not unavailable,
+        "error": unavailable_reason if unavailable else "",
         "title": title,
         "channel": channel,
         "duration": duration,
         "categories": categories,
+        "unavailable": unavailable,
+        "unavailableReason": unavailable_reason,
     }
 
 
@@ -139,7 +218,9 @@ def audit_fight(fight: dict) -> dict | None:
 
     meta = fetch_video_meta(video_id)
     issues: list[str] = []
-    if not meta["ok"]:
+    if meta.get("unavailable"):
+        issues.append("UNAVAILABLE")
+    elif not meta["ok"]:
         issues.append(f"FETCH_ERROR: {meta['error']}")
 
     title = meta["title"]
@@ -150,16 +231,21 @@ def audit_fight(fight: dict) -> dict | None:
 
     if "Gaming" in categories or BAD.search(title) or BAD.search(channel):
         issues.append("GAME_OR_FAKE")
-    if CLIP.search(title) and not GOOD.search(title):
+    if (
+        CLIP.search(title)
+        and not GOOD.search(title)
+        and "full event" not in title.lower()
+    ):
         issues.append("LIKELY_CLIP")
-    if expected_sec >= 25 * 60 and duration < 15 * 60:
-        issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
-    elif expected_sec >= 15 * 60 and duration < 8 * 60:
-        issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
-    elif expected_sec >= 8 * 60 and duration < expected_sec * 0.4:
-        issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
-    elif duration < 45 and expected_sec > 180:
-        issues.append(f"VERY_SHORT({duration}s)")
+    if duration > 0:
+        if expected_sec >= 25 * 60 and duration < 15 * 60:
+            issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
+        elif expected_sec >= 15 * 60 and duration < 8 * 60:
+            issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
+        elif expected_sec >= 8 * 60 and duration < expected_sec * 0.4:
+            issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
+        elif duration < 45 and expected_sec > 180:
+            issues.append(f"VERY_SHORT({duration}s)")
     if (
         title
         and not is_likely_non_english(title)
