@@ -4,7 +4,7 @@
       "id": "084",
       "fighter1": "Gokhan Saki",
       "fighter2": "Daniel Ghita",
-      "event": "Glory 15",
+      "event": "Glory 6",
       "year": 2013,
       "sport": "kickboxing",
       "ending": "KO, round 2",
@@ -86,7 +86,7 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=qe3n4Mx4RyQ",
+      "watchUrl": "https://www.youtube.com/watch?v=utWwcAE56QE",
       "watchLabel": "Watch on YouTube",
       "id": "002"
     },
@@ -131,7 +131,7 @@
       "duration": "6:27",
       "durationMinutes": 6.5,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=gU1B8xeE32s",
+      "watchUrl": "https://www.youtube.com/watch?v=5kk1024Kwb4",
       "watchLabel": "Watch on YouTube",
       "id": "003"
     },
@@ -142,7 +142,7 @@
       "event": "UFC Fight Night 33",
       "year": 2013,
       "sport": "mma",
-      "ending": "Draw (majority) (48\u201347, 47\u201347, 47\u201347)",
+      "ending": "Draw (majority) (48–47, 47–47, 47–47)",
       "endingCategory": "draw",
       "duration": "25:00",
       "durationMinutes": 25.0,
@@ -176,7 +176,7 @@
       "duration": "9:48",
       "durationMinutes": 9.8,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=0FlMvfWELZ8",
+      "watchUrl": "https://www.youtube.com/watch?v=q7apWdFL_Sk",
       "watchLabel": "Watch on YouTube",
       "id": "004"
     },
@@ -219,14 +219,14 @@
       "duration": "20:00",
       "durationMinutes": 20.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=hWtNLWGjG48",
+      "watchUrl": "https://www.youtube.com/watch?v=ebfrMUAB2_E",
       "watchLabel": "Watch on YouTube",
       "id": "005"
     },
     {
       "id": "089",
       "fighter1": "Dan Henderson",
-      "fighter2": "Maur\u00edcio Rua",
+      "fighter2": "Maurício Rua",
       "event": "UFC 139",
       "year": 2011,
       "sport": "mma",
@@ -275,12 +275,12 @@
       "event": "UFC 125",
       "year": 2011,
       "sport": "mma",
-      "ending": "Draw (split) (46\u201348, 48\u201346, 47\u201347)",
+      "ending": "Draw (split) (46–48, 48–46, 47–47)",
       "endingCategory": "draw",
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=9jpBlAiA3BM",
+      "watchUrl": "https://www.youtube.com/watch?v=mP4wigPrLl4",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -301,15 +301,15 @@
     {
       "fighter1": "Paddy Pimblett",
       "fighter2": "Michael Chandler",
-      "event": "UFC 324",
-      "year": 2026,
+      "event": "UFC 314",
+      "year": 2025,
       "sport": "mma",
-      "ending": "Unanimous decision",
-      "endingCategory": "decision",
-      "duration": "25:00",
-      "durationMinutes": 25.0,
-      "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=PCJBnCVlLQ0",
+      "ending": "TKO, round 3",
+      "endingCategory": "ko",
+      "duration": "12:07",
+      "durationMinutes": 12.1,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=cq7dRdx5qwM",
       "watchLabel": "Watch on YouTube",
       "id": "007"
     },
@@ -331,13 +331,13 @@
     {
       "fighter1": "Dustin Poirier",
       "fighter2": "Eddie Alvarez",
-      "event": "UFC on Fox 29",
+      "event": "UFC on Fox 30",
       "year": 2018,
       "sport": "mma",
-      "ending": "TKO, round 4",
+      "ending": "TKO, round 2",
       "endingCategory": "ko",
-      "duration": "18:48",
-      "durationMinutes": 18.8,
+      "duration": "9:05",
+      "durationMinutes": 9.1,
       "scheduledRounds": 5,
       "watchUrl": "https://www.youtube.com/watch?v=eEE_b0CDTFo",
       "watchLabel": "Watch on YouTube",
@@ -430,7 +430,7 @@
       "duration": "20:00",
       "durationMinutes": 20.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=AgoyvEWTRfA",
+      "watchUrl": "https://www.youtube.com/watch?v=RWJRG7uU2bk",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -444,7 +444,7 @@
       "duration": "1:20",
       "durationMinutes": 1.3,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=34KiUn8cRG8",
+      "watchUrl": "https://www.youtube.com/watch?v=_RReu5WGhw4",
       "watchLabel": "Watch on YouTube",
       "id": "013"
     },
@@ -495,8 +495,8 @@
     },
     {
       "id": "095",
-      "fighter1": "Israel V\u00e1zquez",
-      "fighter2": "Rafael M\u00e1rquez",
+      "fighter1": "Israel Vázquez",
+      "fighter2": "Rafael Márquez",
       "event": "Super Bantamweight Trilogy",
       "year": 2008,
       "sport": "boxing",
@@ -532,7 +532,7 @@
       "duration": "0:16",
       "durationMinutes": 0.3,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=AfTsPnieFqQ",
+      "watchUrl": "https://www.youtube.com/watch?v=PF3FHT7E4X4",
       "watchLabel": "Watch on YouTube",
       "id": "015"
     },
@@ -583,8 +583,8 @@
     },
     {
       "id": "097",
-      "fighter1": "Rafael M\u00e1rquez",
-      "fighter2": "Israel V\u00e1zquez",
+      "fighter1": "Rafael Márquez",
+      "fighter2": "Israel Vázquez",
       "event": "Super Bantamweight",
       "year": 2007,
       "sport": "boxing",
@@ -608,11 +608,11 @@
       "duration": "9:09",
       "durationMinutes": 9.2,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=xdjvl9DuTn0",
+      "watchUrl": "https://www.youtube.com/watch?v=eqFaxK2Sl5A",
       "watchLabel": "Watch on YouTube"
     },
     {
-      "fighter1": "Ji\u0159\u00ed Proch\u00e1zka",
+      "fighter1": "Jiří Procházka",
       "fighter2": "Khalil Rountree Jr.",
       "event": "UFC 320",
       "year": 2025,
@@ -628,7 +628,7 @@
     },
     {
       "id": "098",
-      "fighter1": "Maur\u00edcio Rua",
+      "fighter1": "Maurício Rua",
       "fighter2": "Alistair Overeem",
       "event": "Pride 33: The Second Coming",
       "year": 2007,
@@ -667,14 +667,14 @@
       "duration": "3:34",
       "durationMinutes": 3.6,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=yDRQ5MtX5y8",
+      "watchUrl": "https://www.youtube.com/watch?v=YZm8pRVtNP4",
       "watchLabel": "Watch on YouTube",
       "id": "020"
     },
     {
       "id": "099",
       "fighter1": "Diego Corrales",
-      "fighter2": "Jos\u00e9 Luis Castillo",
+      "fighter2": "José Luis Castillo",
       "event": "WBC Lightweight Title",
       "year": 2005,
       "sport": "boxing",
@@ -688,7 +688,7 @@
     },
     {
       "id": "082",
-      "fighter1": "Jos\u00e9 Aldo",
+      "fighter1": "José Aldo",
       "fighter2": "Conor McGregor",
       "event": "UFC 194",
       "year": 2015,
@@ -718,7 +718,7 @@
     },
     {
       "id": "100",
-      "fighter1": "F\u00e9lix Trinidad",
+      "fighter1": "Félix Trinidad",
       "fighter2": "Ricardo Mayorga",
       "event": "WBA Welterweight Title",
       "year": 2005,
@@ -728,7 +728,7 @@
       "duration": "23:36",
       "durationMinutes": 23.6,
       "scheduledRounds": 12,
-      "watchUrl": "https://www.youtube.com/watch?v=rY3I393ONBQ",
+      "watchUrl": "https://www.youtube.com/watch?v=k_gn0ya0OVk",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -823,7 +823,7 @@
     },
     {
       "id": "135",
-      "fighter1": "C\u00e9dric Doumb\u00e9",
+      "fighter1": "Cédric Doumbé",
       "fighter2": "Nieky Holzken",
       "event": "Glory 36 Collision",
       "year": 2016,
@@ -833,7 +833,7 @@
       "duration": "15:00",
       "durationMinutes": 15.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=crZoilI9sXI",
+      "watchUrl": "https://www.youtube.com/watch?v=jMHf-wmVTtY",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -847,8 +847,6 @@
       "duration": "15:00",
       "durationMinutes": 15.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=dBB0mXNpWD4",
-      "watchLabel": "Watch on YouTube",
       "id": "026"
     },
     {
@@ -883,7 +881,7 @@
     },
     {
       "fighter1": "Alex Pereira",
-      "fighter2": "Ji\u0159\u00ed Proch\u00e1zka",
+      "fighter2": "Jiří Procházka",
       "event": "UFC 303",
       "year": 2024,
       "sport": "mma",
@@ -1027,7 +1025,7 @@
       "duration": "11:34",
       "durationMinutes": 11.6,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=nGcK0ilhu9c",
+      "watchUrl": "https://www.youtube.com/watch?v=B2BU_Ty333I",
       "watchLabel": "Watch on YouTube",
       "id": "031"
     },
@@ -1271,7 +1269,7 @@
     },
     {
       "id": "116",
-      "fighter1": "Julio C\u00e9sar Ch\u00e1vez",
+      "fighter1": "Julio César Chávez",
       "fighter2": "Meldrick Taylor",
       "event": "WBC Light Welterweight Unification",
       "year": 1990,
@@ -1295,7 +1293,7 @@
       "duration": "29:18",
       "durationMinutes": 29.3,
       "scheduledRounds": 12,
-      "watchUrl": "https://www.youtube.com/watch?v=7p2S4XmQQnk",
+      "watchUrl": "https://www.youtube.com/watch?v=e3W0DMczmZc",
       "watchLabel": "Watch on YouTube",
       "id": "040"
     },
@@ -1415,14 +1413,14 @@
       "duration": "9:21",
       "durationMinutes": 9.3,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=vx3vs0p6TEs",
+      "watchUrl": "https://www.youtube.com/watch?v=aGB0YhN0HG0",
       "watchLabel": "Watch on YouTube",
       "id": "044"
     },
     {
       "id": "121",
       "fighter1": "Sugar Ray Leonard",
-      "fighter2": "Roberto Dur\u00e1n",
+      "fighter2": "Roberto Durán",
       "event": "WBC Welterweight Rematch",
       "year": 1980,
       "sport": "boxing",
@@ -1465,7 +1463,7 @@
       "watchLabel": "Watch on YouTube"
     },
     {
-      "fighter1": "Ji\u0159\u00ed Proch\u00e1zka",
+      "fighter1": "Jiří Procházka",
       "fighter2": "Alex Pereira",
       "event": "UFC 295",
       "year": 2023,
@@ -1491,7 +1489,7 @@
       "duration": "24:00",
       "durationMinutes": 24.0,
       "scheduledRounds": 15,
-      "watchUrl": "https://www.youtube.com/watch?v=Akfd0IaDto8",
+      "watchUrl": "https://www.youtube.com/watch?v=EAXTvi2W6JA",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -1705,7 +1703,7 @@
       "watchLabel": "Watch on YouTube"
     },
     {
-      "fighter1": "Canelo \u00c1lvarez",
+      "fighter1": "Canelo Álvarez",
       "fighter2": "Caleb Plant",
       "event": "Undisputed Super Middleweight",
       "year": 2021,
@@ -1720,7 +1718,7 @@
       "id": "056"
     },
     {
-      "fighter1": "Te\u00f3fimo L\u00f3pez",
+      "fighter1": "Teófimo López",
       "fighter2": "George Kambosos Jr.",
       "event": "Undisputed Lightweight",
       "year": 2021,
@@ -1842,7 +1840,7 @@
     {
       "id": "065",
       "fighter1": "Zhang Weili",
-      "fighter2": "Joanna J\u0119drzejczyk",
+      "fighter2": "Joanna Jędrzejczyk",
       "event": "UFC 248",
       "year": 2020,
       "sport": "mma",
@@ -1851,7 +1849,7 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=i_AL3LLUnHY",
+      "watchUrl": "https://www.youtube.com/watch?v=eJjDO8rddlc",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -1911,7 +1909,7 @@
       "duration": "4:30",
       "durationMinutes": 4.5,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=nlllUAbL22w",
+      "watchUrl": "https://www.youtube.com/watch?v=YtEmcQqAsVY",
       "watchLabel": "Watch on YouTube"
     },
     {
