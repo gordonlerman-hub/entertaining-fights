@@ -1,6 +1,36 @@
 {
   "fights": [
     {
+      "id": "156",
+      "fighter1": "Mario Pinto",
+      "fighter2": "Ryan Spann",
+      "event": "UFC Fight Night: Hooker vs. Parnasse",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "TKO (punches), round 2",
+      "endingCategory": "ko",
+      "duration": "5:54",
+      "durationMinutes": 5.9,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=iWetgFBye5Q",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "155",
+      "fighter1": "Kurtis Campbell",
+      "fighter2": "Trevor Peek",
+      "event": "UFC Fight Night: Hooker vs. Parnasse",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "Submission (rear-naked choke), round 3",
+      "endingCategory": "submission",
+      "duration": "13:06",
+      "durationMinutes": 13.1,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=ug6bCzyBRx0",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "154",
       "fighter1": "Song Yadong",
       "fighter2": "Umar Nurmagomedov",
