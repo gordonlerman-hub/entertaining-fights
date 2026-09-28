@@ -86,7 +86,7 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=qe3n4Mx4RyQ",
+      "watchUrl": "https://www.youtube.com/watch?v=utWwcAE56QE",
       "watchLabel": "Watch on YouTube",
       "id": "002"
     },
@@ -176,7 +176,7 @@
       "duration": "9:48",
       "durationMinutes": 9.8,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=0FlMvfWELZ8",
+      "watchUrl": "https://www.youtube.com/watch?v=q7apWdFL_Sk",
       "watchLabel": "Watch on YouTube",
       "id": "004"
     },
@@ -301,15 +301,15 @@
     {
       "fighter1": "Paddy Pimblett",
       "fighter2": "Michael Chandler",
-      "event": "UFC 324",
-      "year": 2026,
+      "event": "UFC 314",
+      "year": 2025,
       "sport": "mma",
-      "ending": "Unanimous decision",
-      "endingCategory": "decision",
-      "duration": "25:00",
-      "durationMinutes": 25.0,
+      "ending": "TKO, round 3",
+      "endingCategory": "ko",
+      "duration": "12:07",
+      "durationMinutes": 12.1,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=PCJBnCVlLQ0",
+      "watchUrl": "https://www.youtube.com/watch?v=cq7dRdx5qwM",
       "watchLabel": "Watch on YouTube",
       "id": "007"
     },
@@ -444,7 +444,7 @@
       "duration": "1:20",
       "durationMinutes": 1.3,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=34KiUn8cRG8",
+      "watchUrl": "https://www.youtube.com/watch?v=_RReu5WGhw4",
       "watchLabel": "Watch on YouTube",
       "id": "013"
     },
@@ -532,7 +532,7 @@
       "duration": "0:16",
       "durationMinutes": 0.3,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=AfTsPnieFqQ",
+      "watchUrl": "https://www.youtube.com/watch?v=PF3FHT7E4X4",
       "watchLabel": "Watch on YouTube",
       "id": "015"
     },
@@ -1011,7 +1011,7 @@
       "duration": "1:24",
       "durationMinutes": 1.4,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=_HintBSV3yA",
+      "watchUrl": "https://www.youtube.com/watch?v=BsQ3xb5sF2g",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -1025,7 +1025,7 @@
       "duration": "11:34",
       "durationMinutes": 11.6,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=nGcK0ilhu9c",
+      "watchUrl": "https://www.youtube.com/watch?v=B2BU_Ty333I",
       "watchLabel": "Watch on YouTube",
       "id": "031"
     },
@@ -1413,7 +1413,7 @@
       "duration": "9:21",
       "durationMinutes": 9.3,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=vx3vs0p6TEs",
+      "watchUrl": "https://www.youtube.com/watch?v=aGB0YhN0HG0",
       "watchLabel": "Watch on YouTube",
       "id": "044"
     },
@@ -1489,7 +1489,7 @@
       "duration": "24:00",
       "durationMinutes": 24.0,
       "scheduledRounds": 15,
-      "watchUrl": "https://www.youtube.com/watch?v=Akfd0IaDto8",
+      "watchUrl": "https://www.youtube.com/watch?v=EAXTvi2W6JA",
       "watchLabel": "Watch on YouTube"
     },
     {
