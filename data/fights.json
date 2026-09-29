@@ -1,6 +1,21 @@
 {
   "fights": [
     {
+      "id": "163",
+      "fighter1": "Raul Rosas Jr.",
+      "fighter2": "Raoni Barcelos",
+      "event": "UFC Fight Night: Rosas Jr. vs. Barcelos",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "TKO (slam), round 5",
+      "endingCategory": "ko",
+      "duration": "21:36",
+      "durationMinutes": 21.6,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=5ukXR-zgBC0",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "162",
       "fighter1": "Casey O'Neill",
       "fighter2": "Eduarda Moura",
