@@ -1,6 +1,51 @@
 {
   "fights": [
     {
+      "id": "166",
+      "fighter1": "Alexander Hernandez",
+      "fighter2": "Rafael dos Anjos",
+      "event": "UFC 332",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "TKO (punches), round 2",
+      "endingCategory": "ko",
+      "duration": "8:12",
+      "durationMinutes": 8.2,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=SDZWYnGOlrU",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "165",
+      "fighter1": "Roberto Soldic",
+      "fighter2": "Khaos Williams",
+      "event": "UFC 332",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "Decision (unanimous)",
+      "endingCategory": "decision",
+      "duration": "15:00",
+      "durationMinutes": 15.0,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=dIeiZpm2u3A",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "164",
+      "fighter1": "Natalia Silva",
+      "fighter2": "Wang Cong",
+      "event": "UFC 332",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "Decision",
+      "endingCategory": "decision",
+      "duration": "25:00",
+      "durationMinutes": 25.0,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=ZpEKWEO5oVc",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "163",
       "fighter1": "Raul Rosas Jr.",
       "fighter2": "Raoni Barcelos",
