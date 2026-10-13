@@ -1,6 +1,36 @@
 {
   "fights": [
     {
+      "id": "168",
+      "fighter1": "Floyd Schofield",
+      "fighter2": "Lucas Bahdi",
+      "event": "WBA Lightweight Title",
+      "year": 2026,
+      "sport": "boxing",
+      "ending": "Decision (unanimous)",
+      "endingCategory": "decision",
+      "duration": "36:00",
+      "durationMinutes": 36.0,
+      "scheduledRounds": 12,
+      "watchUrl": "https://www.youtube.com/watch?v=jet996RUxu0",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "167",
+      "fighter1": "Brendan Allen",
+      "fighter2": "Christian Leroy Duncan",
+      "event": "UFC Fight Night: Allen vs. Duncan",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "Submission (rear-naked choke), round 5",
+      "endingCategory": "submission",
+      "duration": "22:48",
+      "durationMinutes": 22.8,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=KNlzd746GVo",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "166",
       "fighter1": "Alexander Hernandez",
       "fighter2": "Rafael dos Anjos",
