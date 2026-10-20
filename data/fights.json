@@ -1,6 +1,21 @@
 {
   "fights": [
     {
+      "id": "169",
+      "fighter1": "Mike Malott",
+      "fighter2": "Joaquin Buckley",
+      "event": "UFC Fight Night: Buckley vs. Malott",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "KO (knee), round 2",
+      "endingCategory": "ko",
+      "duration": "7:30",
+      "durationMinutes": 7.5,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=eY2YO20wW0w",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "168",
       "fighter1": "Floyd Schofield",
       "fighter2": "Lucas Bahdi",
