@@ -4,7 +4,7 @@
       "id": "084",
       "fighter1": "Gokhan Saki",
       "fighter2": "Daniel Ghita",
-      "event": "Glory 15",
+      "event": "Glory 6: Istanbul",
       "year": 2013,
       "sport": "kickboxing",
       "ending": "KO, round 2",
@@ -117,7 +117,7 @@
       "duration": "0:05",
       "durationMinutes": 0.1,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=vZAgr33aBIg",
+      "watchUrl": "https://www.youtube.com/watch?v=gYtL32pMOgc",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -191,7 +191,9 @@
       "endingCategory": "ko",
       "duration": "2:58",
       "durationMinutes": 3.0,
-      "scheduledRounds": 3
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=MuDWOt9hQJM",
+      "watchLabel": "Watch on YouTube"
     },
     {
       "fighter1": "Tyson Fury",
@@ -280,7 +282,7 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=9jpBlAiA3BM",
+      "watchUrl": "https://www.youtube.com/watch?v=Gc7EpNFdbZI",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -339,7 +341,7 @@
       "duration": "18:48",
       "durationMinutes": 18.8,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=eEE_b0CDTFo",
+      "watchUrl": "https://www.youtube.com/watch?v=eLUvPFlXvFw",
       "watchLabel": "Watch on YouTube",
       "id": "074"
     },
@@ -430,7 +432,7 @@
       "duration": "20:00",
       "durationMinutes": 20.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=AgoyvEWTRfA",
+      "watchUrl": "https://www.youtube.com/watch?v=TEQ4jqgRVr0",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -608,7 +610,7 @@
       "duration": "9:09",
       "durationMinutes": 9.2,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=xdjvl9DuTn0",
+      "watchUrl": "https://www.youtube.com/watch?v=eqFaxK2Sl5A",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -667,7 +669,7 @@
       "duration": "3:34",
       "durationMinutes": 3.6,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=yDRQ5MtX5y8",
+      "watchUrl": "https://www.youtube.com/watch?v=6sqZKYwYz-I",
       "watchLabel": "Watch on YouTube",
       "id": "020"
     },
@@ -712,7 +714,7 @@
       "duration": "14:42",
       "durationMinutes": 14.7,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=P17KSHWuCrQ",
+      "watchUrl": "https://www.youtube.com/watch?v=vmhY-qvIvvI",
       "watchLabel": "Watch on YouTube",
       "id": "021"
     },
@@ -1005,15 +1007,15 @@
       "id": "107",
       "fighter1": "Mirko Cro Cop",
       "fighter2": "Bob Sapp",
-      "event": "K-1 World Grand Prix 2002",
-      "year": 2002,
+      "event": "K-1: Saitama 2003",
+      "year": 2003,
       "sport": "kickboxing",
       "ending": "KO (left high kick), round 1",
       "endingCategory": "ko",
       "duration": "1:24",
       "durationMinutes": 1.4,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=_HintBSV3yA",
+      "watchUrl": "https://www.youtube.com/watch?v=BsQ3xb5sF2g",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -1207,6 +1209,8 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=KlOUULjeU6M",
+      "watchLabel": "Watch on YouTube",
       "id": "037"
     },
     {
@@ -1295,7 +1299,7 @@
       "duration": "29:18",
       "durationMinutes": 29.3,
       "scheduledRounds": 12,
-      "watchUrl": "https://www.youtube.com/watch?v=7p2S4XmQQnk",
+      "watchUrl": "https://www.youtube.com/watch?v=e3W0DMczmZc",
       "watchLabel": "Watch on YouTube",
       "id": "040"
     },
@@ -1491,7 +1495,7 @@
       "duration": "24:00",
       "durationMinutes": 24.0,
       "scheduledRounds": 15,
-      "watchUrl": "https://www.youtube.com/watch?v=Akfd0IaDto8",
+      "watchUrl": "https://www.youtube.com/watch?v=55AasOJZzDE",
       "watchLabel": "Watch on YouTube"
     },
     {
