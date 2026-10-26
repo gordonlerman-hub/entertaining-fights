@@ -21,7 +21,7 @@ USER_AGENT = "EntertainingFightsLinkAudit/1.0"
 REQUEST_DELAY_SEC = 0.35
 
 BAD = re.compile(
-    r"(?i)(ea sports|video game|gameplay|ufc \d+ game|ps[45]|xbox|nintendo|"
+    r"(?i)(ea sports|ea alter|alter egos|video game|gameplay|ufc \d+ game|ps[45]|xbox|nintendo|"
     r"simulation|virtual|esports|undisputed 3|ufc 4)"
 )
 CLIP = re.compile(
@@ -152,13 +152,15 @@ def audit_fight(fight: dict) -> dict | None:
         issues.append("GAME_OR_FAKE")
     if CLIP.search(title) and not GOOD.search(title):
         issues.append("LIKELY_CLIP")
-    if expected_sec >= 25 * 60 and duration < 15 * 60:
+    if duration <= 0:
+        pass  # YouTube often omits lengthSeconds for automated fetches; rely on title heuristics
+    elif expected_sec >= 25 * 60 and duration < 15 * 60:
         issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
     elif expected_sec >= 15 * 60 and duration < 8 * 60:
         issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
     elif expected_sec >= 8 * 60 and duration < expected_sec * 0.4:
         issues.append(f"TOO_SHORT({duration // 60}m vs ~{expected_sec // 60}m)")
-    elif duration < 45 and expected_sec > 180:
+    elif duration > 0 and duration < 45 and expected_sec > 180:
         issues.append(f"VERY_SHORT({duration}s)")
     if (
         title
