@@ -1,6 +1,51 @@
 {
   "fights": [
     {
+      "id": "172",
+      "fighter1": "O'Shaquie Foster",
+      "fighter2": "Emanuel Navarrete",
+      "event": "WBC/WBO/IBF Super Featherweight",
+      "year": 2026,
+      "sport": "boxing",
+      "ending": "Decision",
+      "endingCategory": "decision",
+      "duration": "36:00",
+      "durationMinutes": 36.0,
+      "scheduledRounds": 12,
+      "watchUrl": "https://www.youtube.com/watch?v=vO_TbQ2_DPk",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "171",
+      "fighter1": "Alexander Volkanovski",
+      "fighter2": "Movsar Evloev",
+      "event": "UFC 333",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "TKO (punches), round 2",
+      "endingCategory": "ko",
+      "duration": "9:54",
+      "durationMinutes": 9.9,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=Y1p6dvs7dAc",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "170",
+      "fighter1": "Petr Yan",
+      "fighter2": "Merab Dvalishvili",
+      "event": "UFC 333",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "Decision",
+      "endingCategory": "decision",
+      "duration": "25:00",
+      "durationMinutes": 25.0,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=Su0Fn5RdRk4",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "169",
       "fighter1": "Mike Malott",
       "fighter2": "Joaquin Buckley",
