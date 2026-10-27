@@ -119,6 +119,26 @@ MANUAL = {
         "scheduledRounds": 5,
         "source": "K-1 Hercules '96 (3 min rounds)",
     },
+    "170": {
+        "round": 5,
+        "time": "5:00",
+        "scheduledRounds": 5,
+        "source": "UFC 333 official results",
+    },
+    "171": {
+        "ending": "TKO (punches), round 2",
+        "endingCategory": "ko",
+        "round": 2,
+        "time": "4:54",
+        "scheduledRounds": 5,
+        "source": "UFC 333 official results",
+    },
+    "172": {
+        "round": 12,
+        "time": "3:00",
+        "scheduledRounds": 12,
+        "source": "Top Rank / official scorecards",
+    },
 }
 
 PRIDE_10_MIN_R1 = {"Pride 21", "Pride Critical Countdown 2004"}
