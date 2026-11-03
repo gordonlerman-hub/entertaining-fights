@@ -139,6 +139,20 @@ MANUAL = {
         "scheduledRounds": 12,
         "source": "Top Rank / official scorecards",
     },
+    "173": {
+        "ending": "TKO (punches and elbows), round 3",
+        "endingCategory": "ko",
+        "round": 3,
+        "time": "1:28",
+        "scheduledRounds": 5,
+        "source": "UFC Fight Night: Moicano vs Nolan official results",
+    },
+    "174": {
+        "round": 12,
+        "time": "3:00",
+        "scheduledRounds": 12,
+        "source": "Mexico vs. The World / official scorecards",
+    },
 }
 
 PRIDE_10_MIN_R1 = {"Pride 21", "Pride Critical Countdown 2004"}

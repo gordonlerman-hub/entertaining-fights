@@ -1,6 +1,36 @@
 {
   "fights": [
     {
+      "id": "174",
+      "fighter1": "Jaime Munguia",
+      "fighter2": "Nikita Zon",
+      "event": "WBA Super Middleweight Title",
+      "year": 2026,
+      "sport": "boxing",
+      "ending": "Decision",
+      "endingCategory": "decision",
+      "duration": "36:00",
+      "durationMinutes": 36.0,
+      "scheduledRounds": 12,
+      "watchUrl": "https://www.youtube.com/watch?v=fM5QN6jzcKQ",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "173",
+      "fighter1": "Tom Nolan",
+      "fighter2": "Renato Moicano",
+      "event": "UFC Fight Night: Moicano vs Nolan",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "TKO (punches and elbows), round 3",
+      "endingCategory": "ko",
+      "duration": "11:28",
+      "durationMinutes": 11.5,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=P7XUhkLWX4A",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "172",
       "fighter1": "O'Shaquie Foster",
       "fighter2": "Emanuel Navarrete",
