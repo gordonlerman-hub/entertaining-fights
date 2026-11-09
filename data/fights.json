@@ -191,7 +191,9 @@
       "endingCategory": "ko",
       "duration": "2:58",
       "durationMinutes": 3.0,
-      "scheduledRounds": 3
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=MuDWOt9hQJM",
+      "watchLabel": "Watch on YouTube"
     },
     {
       "fighter1": "Tyson Fury",
@@ -280,7 +282,7 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=9jpBlAiA3BM",
+      "watchUrl": "https://www.youtube.com/watch?v=GkWLBRpvYXk",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -430,7 +432,7 @@
       "duration": "20:00",
       "durationMinutes": 20.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=AgoyvEWTRfA",
+      "watchUrl": "https://www.youtube.com/watch?v=LN8IHoKhjlk",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -532,7 +534,7 @@
       "duration": "0:16",
       "durationMinutes": 0.3,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=AfTsPnieFqQ",
+      "watchUrl": "https://www.youtube.com/watch?v=PF3FHT7E4X4",
       "watchLabel": "Watch on YouTube",
       "id": "015"
     },
@@ -608,7 +610,7 @@
       "duration": "9:09",
       "durationMinutes": 9.2,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=xdjvl9DuTn0",
+      "watchUrl": "https://www.youtube.com/watch?v=eqFaxK2Sl5A",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -847,8 +849,6 @@
       "duration": "15:00",
       "durationMinutes": 15.0,
       "scheduledRounds": 5,
-      "watchUrl": "https://www.youtube.com/watch?v=dBB0mXNpWD4",
-      "watchLabel": "Watch on YouTube",
       "id": "026"
     },
     {
@@ -1013,7 +1013,7 @@
       "duration": "1:24",
       "durationMinutes": 1.4,
       "scheduledRounds": 3,
-      "watchUrl": "https://www.youtube.com/watch?v=_HintBSV3yA",
+      "watchUrl": "https://www.youtube.com/watch?v=BsQ3xb5sF2g",
       "watchLabel": "Watch on YouTube"
     },
     {
@@ -1207,6 +1207,8 @@
       "duration": "25:00",
       "durationMinutes": 25.0,
       "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=KlOUULjeU6M",
+      "watchLabel": "Watch on YouTube",
       "id": "037"
     },
     {
@@ -1295,7 +1297,7 @@
       "duration": "29:18",
       "durationMinutes": 29.3,
       "scheduledRounds": 12,
-      "watchUrl": "https://www.youtube.com/watch?v=7p2S4XmQQnk",
+      "watchUrl": "https://www.youtube.com/watch?v=e3W0DMczmZc",
       "watchLabel": "Watch on YouTube",
       "id": "040"
     },
@@ -1491,7 +1493,7 @@
       "duration": "24:00",
       "durationMinutes": 24.0,
       "scheduledRounds": 15,
-      "watchUrl": "https://www.youtube.com/watch?v=Akfd0IaDto8",
+      "watchUrl": "https://www.youtube.com/watch?v=EAXTvi2W6JA",
       "watchLabel": "Watch on YouTube"
     },
     {
