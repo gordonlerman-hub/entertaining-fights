@@ -21,8 +21,8 @@ USER_AGENT = "EntertainingFightsLinkAudit/1.0"
 REQUEST_DELAY_SEC = 0.35
 
 BAD = re.compile(
-    r"(?i)(ea sports|video game|gameplay|ufc \d+ game|ps[45]|xbox|nintendo|"
-    r"simulation|virtual|esports|undisputed 3|ufc 4)"
+    r"(?i)(ea sports|alter egos|video game|gameplay|ufc \d+ game|ps[45]|xbox|nintendo|"
+    r"simulation|virtual|esports|undisputed 3|ufc 4|full event)"
 )
 CLIP = re.compile(
     r"(?i)(highlights?|best moments|compilation|montage|extended clip|"
