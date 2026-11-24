@@ -1,6 +1,66 @@
 {
   "fights": [
     {
+      "id": "184",
+      "fighter1": "John Mitchell",
+      "fighter2": "Shoaib Yousaf",
+      "event": "UFC Fight Night: Prochazka vs Stirling",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "TKO (knee and punches), round 1",
+      "endingCategory": "ko",
+      "duration": "3:48",
+      "durationMinutes": 3.8,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=DSGCMCD7cEM",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "183",
+      "fighter1": "Diyar Nurgozhay",
+      "fighter2": "Alik Lorenz",
+      "event": "UFC Fight Night: Prochazka vs Stirling",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "TKO (head kick and punches), round 2",
+      "endingCategory": "ko",
+      "duration": "5:24",
+      "durationMinutes": 5.4,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=5VlF6VUMLr8",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "182",
+      "fighter1": "Amir Albazi",
+      "fighter2": "Alessandro Costa",
+      "event": "UFC Fight Night: Prochazka vs Stirling",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "Submission (rear-naked choke), round 3",
+      "endingCategory": "submission",
+      "duration": "14:36",
+      "durationMinutes": 14.6,
+      "scheduledRounds": 3,
+      "watchUrl": "https://www.youtube.com/watch?v=C-bYZo3oOuo",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
+      "id": "181",
+      "fighter1": "Navajo Stirling",
+      "fighter2": "Jiří Procházka",
+      "event": "UFC Fight Night: Prochazka vs Stirling",
+      "year": 2026,
+      "sport": "mma",
+      "ending": "KO (right hand), round 2",
+      "endingCategory": "ko",
+      "duration": "10:00",
+      "durationMinutes": 10.0,
+      "scheduledRounds": 5,
+      "watchUrl": "https://www.youtube.com/watch?v=ZCBfVmB89N4",
+      "watchLabel": "Watch on YouTube"
+    },
+    {
       "id": "180",
       "fighter1": "Darius Fulghum",
       "fighter2": "Diego Pacheco",
@@ -52,7 +112,7 @@
       "event": "UFC 334",
       "year": 2026,
       "sport": "mma",
-      "ending": "Decision (unanimous)",
+      "ending": "Decision",
       "endingCategory": "decision",
       "duration": "25:00",
       "durationMinutes": 25.0,
@@ -2591,7 +2651,7 @@
     }
   ],
   "meta": {
-    "count": 145,
+    "count": 177,
     "note": "Winner intentionally omitted. Duration is in-ring elapsed time only (no corner breaks). Verified against Wikipedia and official fight records where possible."
   }
 }
